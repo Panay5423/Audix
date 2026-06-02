@@ -1,0 +1,28 @@
+# Dependency directories
+node_modules/
+**/node_modules/
+
+# Environment files
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Logs
+*.log
+logs
+**/logs
+
+# Compiled/Runtime directories
+dist/
+**/dist/
+tmp/
+**/tmp/
+.angular/
+**/.angular/
+.vscode/
+**/.vscode/
+
+# Local configuration
+.DS_Store
+Thumbs.db
