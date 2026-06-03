@@ -18,7 +18,16 @@ const acessToken = async (req, res) => {
         url: Spotify_auth_URL
     }
     )
+}
+
+const spotifyCallback = async (req, res) => {
+    const code = req.query.code;
+    console.log("code", code)
+    console.log("code")
+
+    res.redirect(`http://localhost:4200/dashboard`)
 
 }
-export default acessToken;
 
+
+export { acessToken, spotifyCallback };
