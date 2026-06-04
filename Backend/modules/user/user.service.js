@@ -48,9 +48,9 @@ const Getuser = async (access_token) => {
 
     const user_data = await fetch(get_user_url, payload);
 
-    const user_data_jason = await user_data.jason();
+    const user_data_jason = await user_data.json();
 
-    console.log("RESPONSE:", user_data_jason);
+
     return user_data_jason;
 }
 
