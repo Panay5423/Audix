@@ -9,6 +9,6 @@ export class AuthService {
 
     constructor(private http: HttpClient) { }
     getAccessToken(): Observable<any> {
-        return this.http.get<string>(`${base_url}/api/acess-token`);
+        return this.http.get<string>(`${base_url}/api/auth/authorization`);
     }
 }
