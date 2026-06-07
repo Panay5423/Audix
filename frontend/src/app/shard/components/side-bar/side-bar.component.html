@@ -1,0 +1,76 @@
+<div class="h-full w-64 flex flex-col justify-between border-r transition-all duration-300 z-30"
+  [ngClass]="activeTheme === 'light' 
+    ? 'bg-slate-50 border-slate-200 text-slate-800' 
+    : 'bg-[#09090b] border-white/5 text-zinc-300'">
+
+  <div class="p-6 space-y-8 flex-1 flex flex-col overflow-y-auto scrollbar-thin">
+    <!-- Brand Logo -->
+    <div class="flex items-center space-x-3 cursor-pointer" [routerLink]="['/home']">
+      <svg class="h-7 w-7 transition-colors duration-300" [ngClass]="getThemeLogoColorClass()" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="3" y1="12" x2="3" y2="12" stroke-width="3"></line>
+        <line x1="7.5" y1="8" x2="7.5" y2="16" stroke-width="3"></line>
+        <line x1="12" y1="4" x2="12" y2="20" stroke-width="3"></line>
+        <line x1="16.5" y1="7" x2="16.5" y2="17" stroke-width="3"></line>
+        <line x1="21" y1="11" x2="21" y2="13" stroke-width="3"></line>
+      </svg>
+      <span class="text-xl font-extrabold tracking-tight"
+        [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+        Audix<span [ngClass]="getThemeTextClass()">.</span>
+      </span>
+    </div>
+
+    <!-- Navigation Items -->
+    <div class="flex-grow space-y-1.5">
+      <div class="px-3 mb-2 text-[10px] font-bold tracking-widest text-zinc-500 uppercase font-mono">
+        Menu Matrix
+      </div>
+
+      <button *ngFor="let item of navItems" 
+        (click)="selectTab(item.id)"
+        class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-98 text-left cursor-pointer border border-transparent"
+        [ngClass]="activeTab === item.id 
+          ? (activeTheme === 'purple' ? 'bg-violet-600/10 text-violet-400 border-violet-500/20 shadow-sm shadow-violet-500/5' : 
+             activeTheme === 'spotify' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-sm shadow-emerald-500/5' : 
+             'bg-indigo-600/10 text-indigo-600 border-indigo-500/20 shadow-sm shadow-indigo-500/5')
+          : (activeTheme === 'light' ? 'hover:bg-slate-200/50 text-slate-600' : 'hover:bg-white/5 text-zinc-400')">
+        <span class="text-base shrink-0">{{ item.icon }}</span>
+        <span class="truncate">{{ item.name }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- User Profile Section -->
+  <div class="p-4 border-t"
+    [ngClass]="activeTheme === 'light' ? 'border-slate-200' : 'border-white/5'">
+    <div class="flex items-center justify-between rounded-2xl p-3 border backdrop-blur-md transition-all duration-300"
+      [ngClass]="activeTheme === 'light' 
+        ? 'bg-white border-slate-200/80 shadow-sm' 
+        : 'bg-[#121214]/60 border-white/5'">
+      <div class="flex items-center space-x-3 overflow-hidden">
+        <img [src]="getAvatar()" alt="User avatar" 
+          class="h-10 w-10 rounded-full object-cover border-2 shrink-0"
+          [ngClass]="activeTheme === 'spotify' ? 'border-emerald-500/50' : 'border-violet-500/50'">
+        <div class="overflow-hidden">
+          <h4 class="text-xs font-extrabold truncate"
+            [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+            {{ userProfile?.displayName || 'Spotify User' }}
+          </h4>
+          <p class="text-[9px] uppercase tracking-wider font-bold text-zinc-500 font-mono">
+            {{ userProfile?.product || 'Free Account' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Logout button -->
+      <button (click)="logout()" 
+        title="Logout"
+        class="h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 active:scale-90 hover:bg-red-500/10 text-zinc-400 hover:text-red-500 cursor-pointer shrink-0">
+        <svg class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

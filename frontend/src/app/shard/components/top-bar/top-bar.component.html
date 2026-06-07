@@ -1,0 +1,102 @@
+<header class="w-full border-b px-6 py-4 flex items-center justify-between transition-all duration-300 relative z-20"
+  [ngClass]="activeTheme === 'light' 
+    ? 'bg-white border-slate-200 text-slate-800' 
+    : 'bg-[#09090b]/80 backdrop-blur-md border-white/5 text-zinc-300'">
+
+  <!-- Left: Page Title / Breadcrumbs -->
+  <div class="flex items-center space-x-2.5">
+    <span class="text-xs font-mono text-zinc-500 uppercase tracking-widest">Audix</span>
+    <span class="text-zinc-600 font-light">/</span>
+    <h1 class="text-sm font-extrabold tracking-wide uppercase font-mono"
+      [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+      {{ getBreadcrumb() }}
+    </h1>
+  </div>
+
+  <!-- Right: Actions -->
+  <div class="flex items-center space-x-6">
+    <!-- Spotify Status Badge -->
+    <div class="hidden xs:flex items-center space-x-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider font-mono transition-colors duration-300"
+      [ngClass]="activeTheme === 'light' 
+        ? 'border-slate-200 bg-slate-50 text-slate-600' 
+        : 'border-white/5 bg-[#121214]/60 text-zinc-400'">
+      <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span>Spotify Online</span>
+    </div>
+
+    <!-- Premium Multi-Theme Switcher Button & Dropdown -->
+    <div class="relative flex items-center">
+      <button (click)="showThemeDropdown = !showThemeDropdown"
+        class="inline-flex items-center space-x-1.5 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all duration-200 active:scale-95 cursor-pointer border"
+        [ngClass]="activeTheme === 'light' ? 'border-slate-200 bg-white hover:bg-slate-50 text-slate-800' : 'border-white/5 bg-white/5 hover:bg-white/10 text-white'">
+        <svg class="h-3.5 w-3.5 transition-colors duration-300" [ngClass]="getThemeLogoColorClass()" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+        </svg>
+        <span class="hidden sm:inline">
+          Theme:
+          <span [ngClass]="getThemeTextClass()" class="font-extrabold">
+            {{ activeTheme === 'purple' ? 'Amethyst' : activeTheme === 'spotify' ? 'Spotify' : 'Ice Light' }}
+          </span>
+        </span>
+      </button>
+
+      <!-- Dropdown Menu -->
+      <div *ngIf="showThemeDropdown"
+        class="absolute right-0 top-full mt-2 w-52 origin-top-right rounded-2xl border p-2.5 shadow-2xl backdrop-blur-xl transition-all duration-200 z-50 animate-[fadeIn_0.15s_ease-out]"
+        [ngClass]="activeTheme === 'light' ? 'border-slate-200 bg-white/95 shadow-slate-200' : 'border-white/10 bg-[#121214]/95 shadow-black'">
+        <div
+          class="px-2.5 py-1.5 border-b pb-2 mb-2 text-[9px] font-mono tracking-widest text-zinc-500 flex justify-between items-center"
+          [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
+          <span>SELECT AESTHETIC</span>
+        </div>
+        <div class="space-y-1">
+          <!-- Amethyst -->
+          <button (click)="setTheme('purple')"
+            class="w-full flex items-center justify-between rounded-xl p-2 text-left text-xs font-semibold transition-all duration-150 cursor-pointer border border-transparent"
+            [ngClass]="activeTheme === 'purple' ? 'bg-white/5 text-violet-400 border-violet-500/10' : 
+                             activeTheme === 'light' ? 'text-slate-700 hover:bg-slate-50' : 
+                             'text-zinc-400 hover:bg-white/5'">
+            <div class="flex items-center space-x-2">
+              <span class="h-2.5 w-2.5 rounded-full bg-violet-600"></span>
+              <span>Amethyst Void</span>
+            </div>
+            <svg *ngIf="activeTheme === 'purple'" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </button>
+          <!-- Spotify -->
+          <button (click)="setTheme('spotify')"
+            class="w-full flex items-center justify-between rounded-xl p-2 text-left text-xs font-semibold transition-all duration-150 cursor-pointer border border-transparent"
+            [ngClass]="activeTheme === 'spotify' ? 'bg-white/5 text-emerald-400 border-emerald-500/10' : 
+                             activeTheme === 'light' ? 'text-slate-700 hover:bg-slate-50' : 
+                             'text-zinc-400 hover:bg-white/5'">
+            <div class="flex items-center space-x-2">
+              <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+              <span>Spotify Classic</span>
+            </div>
+            <svg *ngIf="activeTheme === 'spotify'" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </button>
+          <!-- Light -->
+          <button (click)="setTheme('light')"
+            class="w-full flex items-center justify-between rounded-xl p-2 text-left text-xs font-semibold transition-all duration-150 cursor-pointer border border-transparent"
+            [ngClass]="activeTheme === 'light' ? 'bg-slate-100 text-indigo-600 border-indigo-500/10' : 'text-zinc-400 hover:bg-white/5'">
+            <div class="flex items-center space-x-2">
+              <span class="h-2.5 w-2.5 rounded-full bg-slate-200 border border-slate-400"></span>
+              <span>Ice Light</span>
+            </div>
+            <svg *ngIf="activeTheme === 'light'" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
