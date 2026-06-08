@@ -84,6 +84,7 @@ const getUserProfile = async (req, res) => {
     try {
         const { spotifyId } = req.params;
         const user = await userModels.findOne({ spotifyId });
+        console.log(user)
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
