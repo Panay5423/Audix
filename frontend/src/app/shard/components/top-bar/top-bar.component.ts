@@ -1,8 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ThemeService } from '../../../cors/services/theme.service';
-import { AuthService } from '../../../cors/services/auth.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -20,8 +19,6 @@ export class TopBarComponent implements OnInit, OnDestroy {
 
   constructor(
     public themeService: ThemeService,
-    private authService: AuthService,
-    private route: ActivatedRoute,
     private router: Router
   ) {}
 
@@ -29,14 +26,6 @@ export class TopBarComponent implements OnInit, OnDestroy {
     this.subs.add(
       this.themeService.activeTheme$.subscribe(theme => {
         this.activeTheme = theme;
-      })
-    );
-
-    this.subs.add(
-      this.route.queryParams.subscribe(params => {
-        if (params['tab']) {
-          this.activeTab = params['tab'];
-        }
       })
     );
   }
@@ -77,7 +66,6 @@ export class TopBarComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    this.authService.clearSpotifyId();
     this.router.navigate(['/home']);
   }
 }

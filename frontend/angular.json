@@ -57,6 +57,11 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "allowedHosts": [
+              "exposure-reliable-blessed-adventure.trycloudflare.com"
+            ]
+          },
           "configurations": {
             "production": {
               "buildTarget": "frontend:build:production"

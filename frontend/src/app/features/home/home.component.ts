@@ -134,7 +134,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     }, 300);
 
-
     this.authservice.getAccessToken().subscribe({
       next: (res: any) => {
         this.Spotify_auth_URl = res.url;
@@ -143,8 +142,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       error: (err: any) => {
         console.log(err);
       }
-    })
+    });
   }
+
   connectSpotify() {
     window.location.href = this.Spotify_auth_URl;
   }

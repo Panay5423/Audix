@@ -1,6 +1,6 @@
 <!-- Floating Glassmorphic Header -->
-<header class="sticky top-0 z-50 w-full border-b bg-opacity-80 backdrop-blur-md transition-all duration-300"
-  [ngClass]="activeTheme === 'light' ? 'border-slate-200 bg-white/80' : 'border-white/5 bg-[#09090b]/80'">
+<header class="sticky top-0 z-50 w-full border-b transition-all duration-300"
+  style="background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-color: rgba(255,255,255,0.06);">
   <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
     <!-- Logo -->
     <div class="flex items-center space-x-2.5 cursor-pointer" (click)="scrollToSection('hero')">
@@ -127,13 +127,12 @@
   </div>
 </header>
 
-<main class="relative min-h-screen transition-colors duration-500 overflow-hidden"
-  [ngClass]="activeTheme === 'light' ? 'bg-slate-50 text-slate-900' : 'bg-[#09090b] text-white'">
+<main class="relative min-h-screen overflow-hidden" style="background: #000000; color: #ffffff;">
 
-  <!-- Subtle Ambient Glow Element -->
+  <!-- Ambient Background Orb -->
   <div
-    class="absolute top-[-20%] left-[20%] right-[20%] h-[500px] rounded-full blur-[160px] pointer-events-none transition-all duration-500"
-    [ngClass]="getThemeGlowClass()"></div>
+    class="ambient-orb absolute top-[-15%] left-[10%] right-[10%] h-[600px] rounded-full pointer-events-none"
+    style="background: radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, transparent 70%); filter: blur(80px);"></div>
 
   <!-- ==================== HERO SECTION ==================== -->
   <section id="hero" class="relative mx-auto max-w-7xl px-6 pt-12 pb-24 md:pt-20 md:pb-32">
@@ -141,34 +140,37 @@
 
       <!-- Hero Left: Typography & CTA -->
       <div class="lg:col-span-6 space-y-8 text-center lg:text-left">
-        <div
-          class="inline-flex items-center space-x-2 rounded-full border px-4 py-1.5 text-xs font-medium backdrop-blur-md transition-all duration-300"
-          [ngClass]="activeTheme === 'light' ? 'border-slate-200 bg-white/60' : 'border-white/5 bg-[#121214]/60'">
-          <svg class="h-4 w-4 animate-pulse" [ngClass]="getThemeTextClass()" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          <span [ngClass]="getThemeTextClass()">Spotify Analytics powered by AI</span>
+
+        <!-- Badge -->
+        <div class="animate-fade-in-up delay-100 inline-flex items-center space-x-2 rounded-full border px-4 py-1.5 text-xs font-medium"
+          style="border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); backdrop-filter: blur(12px); color: rgba(255,255,255,0.7);">
+          <span class="badge-dot h-1.5 w-1.5 rounded-full" [ngClass]="getThemeTextClass()" style="background: currentColor;"></span>
+          <span>Spotify Analytics powered by AI</span>
         </div>
 
-        <h1
-          class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight transition-all duration-300">
-          Understand Your Music <br>
-          <span class="bg-gradient-to-r bg-clip-text text-transparent transition-all duration-300"
-            [ngClass]="getThemeGradientTextClass()">Like Never Before</span>
+        <!-- Hero Headline -->
+        <h1 class="animate-fade-in-up delay-200 hero-headline">
+          <span class="block" style="color: #ffffff;">Understand Your Music</span>
+          <span class="block mt-1">
+            <!-- Selection-style "copying" text highlight -->
+            <span class="hero-copy-text">Like Never Before</span>
+          </span>
         </h1>
 
-        <p class="max-w-xl mx-auto lg:mx-0 text-base sm:text-lg leading-relaxed"
-          [ngClass]="activeTheme === 'light' ? 'text-slate-600' : 'text-zinc-400'">
+
+        <!-- Hero Subtitle -->
+        <p class="animate-fade-in-up delay-300 max-w-xl mx-auto lg:mx-0 text-base sm:text-lg leading-relaxed"
+          style="color: rgba(255,255,255,0.55);">
           Audix securely analyzes your Spotify listening habits to decode your acoustic profile, reveal hidden
           statistics, and engineer bespoke AI-powered recommendations.
         </p>
 
         <!-- CTA Buttons -->
-        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+        <div class="animate-fade-in-up delay-500 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+          <!-- Primary CTA — Inverted (White bg, black text) -->
           <button (click)="connectSpotify()"
-            class="group relative flex w-full sm:w-auto items-center justify-center space-x-2.5 rounded-full px-8 py-4 text-base font-semibold transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer shadow-lg"
-            [ngClass]="getThemeBgClass()">
+            class="group relative flex w-full sm:w-auto items-center justify-center space-x-2.5 rounded-full px-8 py-4 text-base font-semibold transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+            style="background: #ffffff; color: #000000; box-shadow: 0 0 40px rgba(255,255,255,0.12), 0 4px 16px rgba(0,0,0,0.4);">
             <!-- Spotify Icon inside brand-colored button -->
             <svg class="h-5 w-5 fill-current shrink-0" viewBox="0 0 24 24">
               <path
@@ -177,16 +179,17 @@
             <span>Connect Spotify Account</span>
           </button>
 
+          <!-- Secondary CTA -->
           <button (click)="scrollToSection('features')"
-            class="flex w-full sm:w-auto items-center justify-center space-x-2 rounded-full border px-8 py-4 text-base font-semibold transition-all duration-200 active:scale-95 cursor-pointer"
-            [ngClass]="activeTheme === 'light' ? 'border-slate-300 bg-white hover:bg-slate-100 text-slate-800' : 'border-white/10 bg-white/5 hover:bg-white/10 text-white'">
+            class="flex w-full sm:w-auto items-center justify-center space-x-2 rounded-full border px-8 py-4 text-base font-semibold transition-all duration-200 active:scale-95 cursor-pointer hover:scale-105"
+            style="border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.03); color: #ffffff;">
             <span>Explore Features</span>
           </button>
         </div>
 
         <!-- Trust Indicator -->
-        <div class="pt-4 flex items-center justify-center lg:justify-start space-x-6 text-xs"
-          [ngClass]="activeTheme === 'light' ? 'text-slate-400' : 'text-zinc-500'">
+        <div class="animate-fade-in-up delay-700 pt-4 flex items-center justify-center lg:justify-start space-x-6 text-xs"
+          style="color: rgba(255,255,255,0.3);">
           <div class="flex items-center space-x-1.5">
             <svg class="h-4 w-4" [ngClass]="getThemeTextClass()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -198,10 +201,10 @@
           <div>No Credit Card Required</div>
         </div>
 
-        <!-- Quick Hero Theme Switcher -->
+        <!-- Theme Switcher -->
         <div
-          class="pt-6 border-t flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 text-xs"
-          [ngClass]="activeTheme === 'light' ? 'border-slate-200' : 'border-white/5'">
+          class="animate-fade-in-up delay-900 pt-6 border-t flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 text-xs"
+          style="border-color: rgba(255,255,255,0.06);">
           <span [ngClass]="activeTheme === 'light' ? 'text-slate-400' : 'text-zinc-500'"
             class="font-mono tracking-wider text-[10px] uppercase font-bold shrink-0">Try Audix Aesthetics:</span>
           <div class="flex flex-wrap items-center justify-center gap-2">

@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { AuthService } from '../../../cors/services/auth.service';
 import { ThemeService } from '../../../cors/services/theme.service';
 import { Subscription } from 'rxjs';
 
@@ -32,9 +31,8 @@ export class SideBarComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService,
     public themeService: ThemeService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.subs.add(
@@ -50,49 +48,13 @@ export class SideBarComponent implements OnInit, OnDestroy {
         }
       })
     );
-
-    const spotifyId = this.authService.getSpotifyId();
-    if (spotifyId) {
-      this.loadProfile(spotifyId);
-    } else {
-      // Fallback: check query param if not in service
-      this.subs.add(
-        this.route.queryParams.subscribe(params => {
-          if (params['spotifyId']) {
-            this.authService.saveSpotifyId(params['spotifyId']);
-            this.loadProfile(params['spotifyId']);
-          }
-        })
-      );
-    }
-  }
-
-  loadProfile(spotifyId: string) {
-    this.subs.add(
-      this.authService.getUserProfile(spotifyId).subscribe({
-        next: (profile) => {
-          this.userProfile = profile;
-        },
-        error: (err) => {
-          console.error('Failed to load user profile in sidebar', err);
-        }
-      })
-    );
   }
 
   ngOnDestroy() {
     this.subs.unsubscribe();
   }
 
-  selectTab(tabId: string) {
-    const spotifyId = this.authService.getSpotifyId() || this.route.snapshot.queryParams['spotifyId'];
-    this.router.navigate(['/dashboard'], {
-      queryParams: { spotifyId, tab: tabId }
-    });
-  }
-
   logout() {
-    this.authService.clearSpotifyId();
     this.router.navigate(['/home']);
   }
 

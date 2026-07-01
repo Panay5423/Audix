@@ -131,7 +131,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private authService: AuthService,
     private themeService: ThemeService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.subs.add(
@@ -140,22 +140,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
       })
     );
 
-    this.subs.add(
-      this.route.queryParams.subscribe(params => {
-        if (params['tab']) {
-          this.activeTab = params['tab'];
-        }
+    // this.subs.add(
+    //   this.route.queryParams.subscribe(params => {
+    //     if (params['tab']) {
+    //       this.activeTab = params['tab'];
+    //     }
 
-        const spotifyId = params['spotifyId'] || this.authService.getSpotifyId();
-        if (spotifyId) {
-          this.authService.saveSpotifyId(spotifyId);
-          this.fetchProfile(spotifyId);
-        } else {
-          this.loading = false;
-          this.error = 'No Spotify connection detected. Please log in first.';
-        }
-      })
-    );
+    //     const spotifyId = params['spotifyId'] || this.authService.getSpotifyId();
+    //     if (spotifyId) {
+    //       this.authService.saveSpotifyId(spotifyId);
+    //       this.fetchProfile(spotifyId);
+    //     } else {
+    //       this.loading = false;
+    //       this.error = 'No Spotify connection detected. Please log in first.';
+    //     }
+    //   })
+    // );
 
     // Audio player progress simulation
     this.playerInterval = setInterval(() => {
@@ -168,20 +168,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }, 400);
   }
 
-  fetchProfile(spotifyId: string) {
-    this.loading = true;
-    this.authService.getUserProfile(spotifyId).subscribe({
-      next: (profile) => {
-        this.userProfile = profile;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Failed to load user profile in dashboard', err);
-        this.error = 'Failed to load profile. Please connect again.';
-        this.loading = false;
-      }
-    });
-  }
+  // fetchProfile(spotifyId: string) {
+  //   this.loading = true;
+  //   this.authService.getUserProfile(spotifyId).subscribe({
+  //     next: (profile) => {
+  //       this.userProfile = profile;
+  //       this.loading = false;
+  //     },
+  //     error: (err) => {
+  //       console.error('Failed to load user profile in dashboard', err);
+  //       this.error = 'Failed to load profile. Please connect again.';
+  //       this.loading = false;
+  //     }
+  //   });
+  // }
 
   ngOnDestroy() {
     this.subs.unsubscribe();

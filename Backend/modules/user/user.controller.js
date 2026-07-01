@@ -9,10 +9,47 @@ const Authorization = async (req, res) => {
     const authorization_url = process.env.authorization_url;
 
     const scopes = [
+        // User
         "user-read-email",
-        "user-read-private"
-    ];
+        "user-read-private",
 
+        // Playback
+        "user-read-playback-state",
+        "user-modify-playback-state",
+        "user-read-currently-playing",
+
+        // Recently Played
+        "user-read-recently-played",
+
+        // Top Artists & Tracks
+        "user-top-read",
+
+        // Follow
+        "user-follow-read",
+        "user-follow-modify",
+
+        // Library
+        "user-library-read",
+        "user-library-modify",
+
+        // Playlists
+        "playlist-read-private",
+        "playlist-read-collaborative",
+        "playlist-modify-private",
+        "playlist-modify-public",
+
+        // Playback Position
+        "user-read-playback-position",
+
+        // Spotify Connect SDK
+        "streaming",
+
+        // Images
+        "ugc-image-upload",
+
+        // Open Access (only for eligible partners)
+        "user-soa-link"
+    ];
     const response_type = "code";
 
     const Spotify_auth_URL =
