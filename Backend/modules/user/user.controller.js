@@ -4,9 +4,9 @@ import userModels from "../../models/user/user.models.js";
 env.config();
 const Authorization = async (req, res) => {
 
-    const client_id = process.env.Client_ID;
-    const redirect_url = process.env.redirect_url;
-    const authorization_url = process.env.authorization_url;
+    const client_id = process.env.SPOTIFY_CLIENT_ID;
+    const redirect_url = process.env.SPOTIFY_REDIRECT_URI;
+    const authorization_url = process.env.SPOTIFY_AUTHORIZATION_URL;
 
     const scopes = [
         // User
@@ -52,16 +52,23 @@ const Authorization = async (req, res) => {
     ];
     const response_type = "code";
 
+    console.log(redirect_url)
+
     const Spotify_auth_URL =
         authorization_url +
         'client_id=' + client_id +
         '&response_type=' + response_type +
-        '&redirect_uri=' + encodeURIComponent(redirect_url) +
-        '&scope=' + encodeURIComponent(scopes.join(' ')) +
+        '&redirect_uri=' + redirect_url +
+        '&scope=' + scopes.join(' ') +
         '&show_dialog=true';
+
+    console.log(Spotify_auth_URL)
     res.json({
         url: Spotify_auth_URL
     });
+    console.log("client_id", client_id)
+    console.log("redirect_url", redirect_url)
+    console.log("authorization_url", authorization_url)
 };
 
 const generateAccountId = () => {
@@ -74,15 +81,33 @@ const generateAccountId = () => {
 };
 
 const spotifyCallback = async (req, res) => {
+    console.log("hi")
+    console.log(req.query)
     const code = req.query.code;
 
+    if (!code) {
+        return res.status(400).json({ message: "Authorization code is missing" });
+    }
+
     const Data = await refreshToken(code);
+
+    if (!Data || Data.error || !Data.access_token) {
+        console.error("Token exchange failed:", Data);
+        return res.redirect(`http://localhost:4200/login?error=token_exchange_failed`);
+    }
+
     const access_token = Data.access_token;
     const refresh_token = Data.refresh_token;
 
     const user = await Getuser(access_token);
 
+    if (!user || user.error || !user.id) {
+        console.error("Failed to fetch Spotify user profile:", user);
+        return res.redirect(`http://localhost:4200/login?error=profile_fetch_failed`);
+    }
+
     const updateFields = {
+        spotifyId: user.id,
         displayName: user.display_name,
         email: user.email,
         country: user.country,
@@ -114,14 +139,13 @@ const spotifyCallback = async (req, res) => {
     const save_user = await dbUser.save();
 
     res.redirect(`http://localhost:4200/dashboard?spotifyId=${user.id}`);
-
 }
 
 const getUserProfile = async (req, res) => {
     try {
         const { spotifyId } = req.params;
         const user = await userModels.findOne({ spotifyId });
-        console.log(user)
+        console.log("hgey", user)
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
