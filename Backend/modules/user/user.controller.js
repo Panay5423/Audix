@@ -1,4 +1,5 @@
 import env from "dotenv";
+import jwt from "jsonwebtoken";
 import { refreshToken, Getuser } from "./user.service.js";
 import userModels from "../../models/user/user.models.js";
 env.config();
@@ -47,8 +48,7 @@ const Authorization = async (req, res) => {
         // Images
         "ugc-image-upload",
 
-        // Open Access (only for eligible partners)
-        "user-soa-link"
+
     ];
     const response_type = "code";
 
@@ -62,13 +62,11 @@ const Authorization = async (req, res) => {
         '&scope=' + scopes.join(' ') +
         '&show_dialog=true';
 
-    console.log(Spotify_auth_URL)
+    console.log("Spotify_auth_URL ", Spotify_auth_URL)
     res.json({
         url: Spotify_auth_URL
     });
-    console.log("client_id", client_id)
-    console.log("redirect_url", redirect_url)
-    console.log("authorization_url", authorization_url)
+
 };
 
 const generateAccountId = () => {
@@ -81,8 +79,7 @@ const generateAccountId = () => {
 };
 
 const spotifyCallback = async (req, res) => {
-    console.log("hi")
-    console.log(req.query)
+
     const code = req.query.code;
 
     if (!code) {
@@ -90,6 +87,8 @@ const spotifyCallback = async (req, res) => {
     }
 
     const Data = await refreshToken(code);
+
+
 
     if (!Data || Data.error || !Data.access_token) {
         console.error("Token exchange failed:", Data);
@@ -100,12 +99,22 @@ const spotifyCallback = async (req, res) => {
     const refresh_token = Data.refresh_token;
 
     const user = await Getuser(access_token);
+    console.log("user :", user)
 
     if (!user || user.error || !user.id) {
         console.error("Failed to fetch Spotify user profile:", user);
         return res.redirect(`http://localhost:4200/login?error=profile_fetch_failed`);
     }
 
+    const token = jwt.sign(
+        {
+            userId: user.account_id,
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: "7d",
+        }
+    );
     const updateFields = {
         spotifyId: user.id,
         displayName: user.display_name,
@@ -120,7 +129,8 @@ const spotifyCallback = async (req, res) => {
         type: user.type,
         uri: user.uri,
         spotifyAccessToken: access_token,
-        spotifyRefreshToken: refresh_token
+        spotifyRefreshToken: refresh_token,
+        JWT_token: token
     };
 
     let dbUser = await userModels.findOne({ spotifyId: user.id });
@@ -138,12 +148,18 @@ const spotifyCallback = async (req, res) => {
 
     const save_user = await dbUser.save();
 
-    res.redirect(`http://localhost:4200/dashboard?spotifyId=${user.id}`);
+    res.cookie("JWT_token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days in milliseconds
+    });
+    res.redirect(`http://localhost:4200/dashboard`);
+
 }
 
 const getUserProfile = async (req, res) => {
     try {
-        const { spotifyId } = req.params;
         const user = await userModels.findOne({ spotifyId });
         console.log("hgey", user)
         if (!user) {

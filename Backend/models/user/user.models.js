@@ -36,7 +36,8 @@ const userSchema = new mongoose.Schema({
     uri: String,
 
     spotifyAccessToken: String,
-    spotifyRefreshToken: String
+    spotifyRefreshToken: String,
+    JWT_token: String
 
 }, {
     timestamps: true

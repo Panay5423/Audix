@@ -1,19 +1,19 @@
 import jwt from "jsonwebtoken";
 
-export const verifyJWT = (req, res, next) => {
-    // Check for token in cookies first, then fallback to Authorization header
-    const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
+export const authenticateuser = (req, res, next) => {
+    const token = req.cookies?.JWT_token;
 
     if (!token) {
-        return res.status(401).json({ message: "Access denied. No token provided." });
-        console.log(token)
+        return res.status(401).json({ message: "Please login first" });
     }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded; // Contains userId
+        req.user = decoded;
+        req.userId = decoded.userId;
+
         next();
     } catch (error) {
-        return res.status(401).json({ message: "Invalid or expired token." });
+        return res.status(403).json({ message: "Invalid or expired token" });
     }
 };

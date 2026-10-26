@@ -1,3 +1,5 @@
+import jwt from "jsonwebtoken";
+
 const refreshToken = async (code) => {
 
     const authorization_code = code;
@@ -27,31 +29,59 @@ const refreshToken = async (code) => {
 
 
     const Data = await fetch(get_token_URl, payload);
-    const Data_JSON = await Data.json();
 
+    const responseText = await Data.text();
+
+    console.log("TOKEN STATUS:", Data.status);
+    console.log("TOKEN CONTENT TYPE:", Data.headers.get("content-type"));
+    console.log("TOKEN RESPONSE:", responseText);
+
+    let Data_JSON;
+
+    try {
+        Data_JSON = JSON.parse(responseText);
+    } catch (error) {
+        console.error("Spotify token API returned non-JSON response");
+        throw new Error(
+            `Token exchange failed with status ${Data.status}`
+        );
+    }
+
+    return Data_JSON;
 
     return Data_JSON;
 
 }
 
 const Getuser = async (access_token) => {
-
-
     const spotify_base_api = process.env.spotify_base_api;
-    const get_user_url = spotify_base_api + '/me';
-    const payload = {
-        method: 'GET',
+    const get_user_url = `${spotify_base_api}/me`;
+
+    const user_data = await fetch(get_user_url, {
+        method: "GET",
         headers: {
-            "Authorization": `Bearer ${access_token}`,
-        }
-    };
+            Authorization: `Bearer ${access_token}`,
+        },
+    });
 
-    const user_data = await fetch(get_user_url, payload);
+    const responseText = await user_data.text();
 
-    const user_data_jason = await user_data.json();
+    console.log("Profile status:", user_data.status);
+    console.log("Profile response:", responseText);
+
+    if (!user_data.ok) {
+        throw new Error(
+            `Spotify profile request failed: ${user_data.status}`
+        );
+    }
+
+    try {
+        return JSON.parse(responseText);
+    } catch {
+        throw new Error("Spotify profile response is not valid JSON");
+    }
+};
+
+export { refreshToken, Getuser };
 
 
-    return user_data_jason;
-}
-
-export { refreshToken, Getuser };   
