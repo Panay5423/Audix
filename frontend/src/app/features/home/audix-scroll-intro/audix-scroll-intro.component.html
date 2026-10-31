@@ -1,0 +1,17 @@
+<section class="audix-scroll-story" aria-label="Audix introduction">
+  <div class="audix-stage" [class.stage-one]="stage === 0" [class.stage-two]="stage === 1"
+       [class.stage-three]="stage === 2" [class.stage-four]="stage === 3">
+    <div class="audix-word-stack" aria-hidden="true">
+      <span class="word word-top">Audix</span>
+      <span class="word word-middle">Audix</span>
+      <span class="word word-bottom">Audix</span>
+    </div>
+    <div class="audix-single-word" aria-label="Audix">Audix</div>
+    <div class="audix-giant-word" aria-hidden="true">Audix</div>
+    <span class="intro-caption">A NEW WAY TO EXPERIENCE YOUR MUSIC</span>
+    <button class="skip-intro" type="button" (click)="skipIntro()" aria-label="Skip intro">
+      Skip intro <span aria-hidden="true">↘</span>
+    </button>
+    <div class="scroll-indicator" aria-hidden="true"><span></span> SCROLL TO EXPLORE</div>
+  </div>
+</section>
