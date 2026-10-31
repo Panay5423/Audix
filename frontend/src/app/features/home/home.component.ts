@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from '../../cors/services/auth.service';
+import { AudixScrollIntroComponent } from './audix-scroll-intro/audix-scroll-intro.component';
 
 interface MockArtist {
   name: string;
@@ -34,7 +35,7 @@ interface MockTrack {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AudixScrollIntroComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
