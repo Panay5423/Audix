@@ -64,7 +64,7 @@
 .stage-three .audix-giant-word { opacity: 1; color: #050505; transform: translate(-50%, -50%) scale(1); }
 .stage-four .audix-single-word { opacity: 0; }
 .stage-four .audix-giant-word { opacity: 1; color: #fff; transform: translate(-50%, -50%) scale(1.06); }
-.stage-four { background: #050505; color: #fff; }
+.stage-four { background: #fff; color: #fff; }
 .stage-two .intro-caption, .stage-three .intro-caption, .stage-four .intro-caption { opacity: 1; }
 .stage-three .scroll-indicator, .stage-four .scroll-indicator { opacity: .35; }
 @media (max-width: 700px) {
