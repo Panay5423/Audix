@@ -1,84 +1,170 @@
-:host { display: block; }
+:host {
+  display: block;
+  background: #fff;
+}
+
 .audix-scroll-story {
   position: relative;
-  height: 400vh;
+  height: 520vh;
+  height: 520svh;
   background: #fff;
-  color: #050505;
-  isolation: isolate;
 }
+
 .audix-stage {
   position: sticky;
   top: 0;
+  isolation: isolate;
   width: 100%;
+  height: 100vh;
   height: 100svh;
-  min-height: 540px;
+  min-height: 480px;
   overflow: hidden;
   background: #fff;
-  color: #050505;
-  transition: background-color .65s ease, color .65s ease;
-  font-family: 'Amaranth', 'Arial Rounded MT Bold', sans-serif;
 }
-.word, .audix-single-word, .audix-giant-word {
+
+.audix-word-stack {
   position: absolute;
-  font-weight: 700;
-  letter-spacing: -.075em;
-  line-height: .82;
+  inset: 0 auto auto 0;
+  z-index: 1;
+  width: 391px;
+  height: 600px;
   white-space: nowrap;
-  transition: transform .9s cubic-bezier(.2,.75,.2,1), opacity .65s ease, color .65s ease;
+  will-change: opacity;
 }
-.audix-word-stack .word { left: 0; font-size: clamp(110px, 10.42vw, 150px); }
-.word-top { top: 23.8%; color: #fff; }
-.word-middle { top: 36.9%; color: #050505; }
-.word-bottom { top: 50%; color: #fff; }
-.audix-single-word {
-  top: 50%; left: 50%;
-  font-size: clamp(110px, 10.42vw, 150px);
-  transform: translate(-50%, -50%) scale(.96);
-  opacity: 0;
-}
-.audix-giant-word {
-  left: 50%; top: 50%;
-  font-size: clamp(360px, 55.56vw, 800px);
-  transform: translate(-50%, -50%) scale(.84);
-  opacity: 0;
-  letter-spacing: -.085em;
-}
-.intro-caption, .scroll-indicator, .skip-intro {
+
+.word {
   position: absolute;
-  font: 500 10px/1.2 Inter, sans-serif;
-  letter-spacing: .2em;
-  transition: opacity .35s ease;
+  left: 0;
+  display: block;
+  margin: 0;
+  font-family: 'Amaranth', sans-serif;
+  font-size: clamp(76px, 10.42vw, 150px);
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: normal;
+  white-space: nowrap;
+  transform-origin: center center;
+  will-change: transform, opacity;
 }
-.intro-caption { left: 28px; bottom: 28px; opacity: 0; }
-.scroll-indicator { left: 50%; bottom: 30px; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; color: #777; font-size: 9px; }
-.scroll-indicator span { width: 34px; height: 1px; background: currentColor; }
-.skip-intro { right: 28px; bottom: 25px; border: 0; background: transparent; color: inherit; cursor: pointer; letter-spacing: .12em; }
-.skip-intro span { font-size: 17px; margin-left: 7px; }
-.stage-one .word-top { transform: translateY(0); }
-.stage-one .word-middle { transform: translateY(0); }
-.stage-one .word-bottom { transform: translateY(0); }
-.stage-two .word-top, .stage-two .word-middle, .stage-two .word-bottom { opacity: 0; transform: translateX(-12vw); }
-.stage-two .audix-single-word { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-.stage-three, .stage-four { background: #fff; }
-.stage-three .audix-single-word { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
-.stage-three .audix-giant-word { opacity: 1; color: #050505; transform: translate(-50%, -50%) scale(1); }
-.stage-four .audix-single-word { opacity: 0; }
-.stage-four .audix-giant-word { opacity: 1; color: #fff; transform: translate(-50%, -50%) scale(1.06); }
-.stage-four { background: #fff; color: #fff; }
-.stage-two .intro-caption, .stage-three .intro-caption, .stage-four .intro-caption { opacity: 1; }
-.stage-three .scroll-indicator, .stage-four .scroll-indicator { opacity: .35; }
+
+.word-outline {
+  color: #fff;
+  -webkit-text-stroke: 2px #303030;
+  paint-order: stroke fill;
+}
+
+.word-solid {
+  color: #000;
+}
+
+.word:nth-child(1) { top: 23.78vh; }
+.word:nth-child(2) { top: 36.89vh; }
+.word:nth-child(3) { top: 50vh; }
+
+.audix-black-wipe {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: #000;
+  transform: scaleY(0);
+  transform-origin: bottom center;
+  will-change: transform;
+}
+
+.audix-headline-wrap {
+  position: absolute;
+  top: 18.2%;
+  left: 5px;
+  z-index: 3;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(15px);
+  will-change: opacity, transform;
+}
+
+.audix-headline {
+  margin: 0;
+  font-family: 'Amaranth', sans-serif;
+  font-size: clamp(48px, 6.25vw, 90px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.94;
+}
+
+.audix-headline span {
+  display: block;
+  white-space: nowrap;
+}
+
+.audix-underline {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: min(37.8vw, 545px);
+  height: 24px;
+  border-radius: 999px;
+  background: #fff;
+  transform-origin: left center;
+  will-change: width;
+}
+
+.audix-waveform {
+  position: absolute;
+  top: calc(100% - 74px);
+  left: 0;
+  z-index: 1;
+  width: 100vw;
+  height: 160px;
+  overflow: visible;
+  fill: #fff;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.audix-waveform rect {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 @media (max-width: 700px) {
-  .audix-stage { min-height: 480px; }
-  .audix-word-stack .word { font-size: clamp(82px, 19vw, 130px); }
-  .word-top { top: 28%; }
-  .word-middle { top: 41%; }
-  .word-bottom { top: 54%; }
-  .audix-single-word { font-size: clamp(88px, 19vw, 130px); }
-  .audix-giant-word { font-size: 58vw; }
-  .intro-caption { left: 18px; bottom: 62px; font-size: 8px; }
-  .skip-intro { right: 18px; bottom: 22px; }
-  .scroll-indicator { bottom: 27px; font-size: 7px; }
+  .audix-stage { min-height: 360px; }
+
+  .word {
+    font-size: clamp(60px, 19vw, 130px);
+  }
+
+  .word-outline { -webkit-text-stroke-width: 1.4px; }
+
+  .word:nth-child(1) { top: 23.78svh; }
+  .word:nth-child(2) { top: 36.89svh; }
+  .word:nth-child(3) { top: 50svh; }
+
+  .audix-headline-wrap { top: 22%; left: 12px; }
+
+  .audix-headline { font-size: clamp(42px, 9.5vw, 68px); }
+
+  .audix-underline {
+    width: min(74vw, 440px);
+    height: 14px;
+  }
+
+  .audix-waveform {
+    top: calc(100% - 46px);
+    height: 104px;
+  }
 }
+
+@media (max-width: 420px) {
+  .audix-headline { font-size: 10vw; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .word, .audix-single-word, .audix-giant-word, .audix-stage { transition-duration: .01ms; }
+  .word,
+  .audix-black-wipe,
+  .audix-headline-wrap,
+  .audix-waveform {
+    will-change: auto;
+  }
 }

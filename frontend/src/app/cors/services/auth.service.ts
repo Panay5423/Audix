@@ -11,4 +11,7 @@ export class AuthService {
     getAccessToken(): Observable<any> {
         return this.http.get<string>(`${base_url}/api/auth/authorization`);
     }
+    getcurrentuser(token: string): Observable<any> {
+        return this.http.get<any>(`${base_url}/api/auth/user`, { headers: { token } });
+    }
 }

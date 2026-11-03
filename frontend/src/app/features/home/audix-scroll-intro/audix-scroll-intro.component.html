@@ -1,17 +1,29 @@
-<section class="audix-scroll-story" aria-label="Audix introduction">
-  <div class="audix-stage" [class.stage-one]="stage === 0" [class.stage-two]="stage === 1"
-       [class.stage-three]="stage === 2" [class.stage-four]="stage === 3">
-    <div class="audix-word-stack" aria-hidden="true">
-      <span class="word word-top">Audix</span>
-      <span class="word word-middle">Audix</span>
-      <span class="word word-bottom">Audix</span>
+<section class="audix-scroll-story" #scrollScene aria-label="Audix introduction">
+  <div class="audix-stage">
+    <div class="audix-word-stack" #wordmarkStack aria-hidden="true">
+      <span class="word word-outline">Audix</span>
+      <span class="word word-solid">Audix</span>
+      <span class="word word-outline">Audix</span>
     </div>
-    <div class="audix-single-word" aria-label="Audix">Audix</div>
-    <div class="audix-giant-word" aria-hidden="true">Audix</div>
-    <span class="intro-caption">A NEW WAY TO EXPERIENCE YOUR MUSIC</span>
-    <button class="skip-intro" type="button" (click)="skipIntro()" aria-label="Skip intro">
-      Skip intro <span aria-hidden="true">↘</span>
-    </button>
-    <div class="scroll-indicator" aria-hidden="true"><span></span> SCROLL TO EXPLORE</div>
+
+    <div class="audix-black-wipe" #blackWipe aria-hidden="true"></div>
+
+    <div class="audix-headline-wrap" #headlineWrap>
+      <h2 class="audix-headline">
+        <span>Understand</span>
+        <span>your music like</span>
+        <span #finalHeadline>Never Before</span>
+      </h2>
+      <div class="audix-underline" #headlineUnderline aria-hidden="true"></div>
+      <svg class="audix-waveform" #waveform viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true">
+        <rect x="914" y="18" width="18" height="124" rx="9" />
+        <rect x="937" y="49" width="18" height="62" rx="9" />
+        <rect x="960" y="67" width="18" height="26" rx="9" />
+        <rect x="983" y="58" width="18" height="44" rx="9" />
+        <rect x="1006" y="71" width="18" height="18" rx="9" />
+        <rect x="1414" y="55" width="18" height="50" rx="9" />
+        <rect x="1437" y="67" width="18" height="26" rx="9" />
+      </svg>
+    </div>
   </div>
 </section>

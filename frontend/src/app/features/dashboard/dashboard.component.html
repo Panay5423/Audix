@@ -1,894 +1,511 @@
-<!-- Loading State -->
-<div *ngIf="loading" class="flex flex-col items-center justify-center min-h-[500px] space-y-4">
+<!-- 1. LOADING STATE (Matches exact visual style in reference) -->
+<div *ngIf="loading" class="flex flex-col items-center justify-center min-h-[500px] space-y-4 animate-[fadeIn_0.3s_ease-out]">
   <div class="h-10 w-10 border-4 border-t-transparent rounded-full animate-spin"
-    [ngClass]="activeTheme === 'spotify' ? 'border-emerald-500' : 'border-violet-500'"></div>
-  <p class="text-zinc-500 font-semibold text-sm">Decoding listening matrix...</p>
+    [ngClass]="activeTheme === 'spotify' ? 'border-emerald-500' : (activeTheme === 'light' ? 'border-indigo-600' : 'border-violet-500')">
+  </div>
+  <p class="text-zinc-500 font-semibold text-sm tracking-wide">Decoding listening matrix...</p>
 </div>
 
-<!-- Error State -->
-<div *ngIf="error && !loading" class="flex flex-col items-center justify-center min-h-[500px] space-y-4 text-center max-w-md mx-auto">
-  <span class="text-4xl">⚠️</span>
-  <h2 class="text-xl font-bold text-red-500">Authentication Reference Missing</h2>
-  <p class="text-zinc-500 text-sm leading-relaxed">{{ error }}</p>
-  <button [routerLink]="['/home']" 
-    class="rounded-full px-6 py-2.5 text-xs uppercase font-bold tracking-wider transition-all duration-300"
-    [ngClass]="getThemeBgClass()">
-    Go to Landing Page
-  </button>
+<!-- 2. ERROR / MISSING DATA STATE -->
+<div *ngIf="error && !loading" class="flex flex-col items-center justify-center min-h-[480px] p-8 text-center max-w-lg mx-auto space-y-6 animate-[fadeIn_0.3s_ease-out]">
+  <div class="h-16 w-16 rounded-2xl flex items-center justify-center border shadow-xl"
+    [ngClass]="activeTheme === 'light' ? 'bg-red-50 border-red-200 text-red-500' : 'bg-red-500/10 border-red-500/20 text-red-400'">
+    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+  </div>
+
+  <div class="space-y-2">
+    <h3 class="text-xl font-bold tracking-tight" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+      Authentication Reference Missing
+    </h3>
+    <p class="text-xs text-zinc-500 leading-relaxed max-w-sm mx-auto">
+      {{ error }}
+    </p>
+  </div>
+
+  <div class="flex items-center space-x-3 pt-2">
+    <button (click)="retry()"
+      class="px-5 py-2.5 rounded-xl text-xs font-semibold border transition-all active:scale-95 cursor-pointer"
+      [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50' : 'bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10'">
+      Retry Connection
+    </button>
+    <a [routerLink]="['/home']"
+      class="px-6 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-lg"
+      [ngClass]="getThemeBgClass()">
+      Connect Spotify
+    </a>
+  </div>
 </div>
 
-<!-- Dashboard Content Wrapper -->
-<div *ngIf="!loading && !error" class="space-y-8 animate-[fadeIn_0.4s_ease-out]">
+<!-- 3. MAIN DASHBOARD CONTENT AREA -->
+<div *ngIf="!loading && !error" class="space-y-8 animate-[fadeIn_0.35s_ease-out]">
 
-  <!-- ==================== TAB 1: OVERVIEW ==================== -->
-  <div *ngIf="activeTab === 'overview'" class="space-y-8">
-    <!-- Welcome Header Banner -->
-    <div class="rounded-3xl p-8 border relative overflow-hidden transition-all duration-300 shadow-xl"
-      [ngClass]="activeTheme === 'light' 
-        ? 'bg-gradient-to-r from-indigo-50 to-indigo-100/50 border-indigo-100 shadow-indigo-100/30' 
-        : (activeTheme === 'spotify' 
-          ? 'bg-[#121214] border-emerald-500/10 shadow-black' 
-          : 'bg-[#121214] border-violet-500/10 shadow-black')">
-      <!-- Glow bubble -->
-      <div class="absolute -right-16 -top-16 h-48 w-48 rounded-full blur-[80px] opacity-20 pointer-events-none"
-        [ngClass]="activeTheme === 'spotify' ? 'bg-emerald-500' : 'bg-violet-500'"></div>
+  <!-- ========================================== -->
+  <!-- 1. WELCOME SECTION                         -->
+  <!-- ========================================== -->
+  <div class="rounded-2xl p-6 sm:p-8 border relative overflow-hidden transition-all duration-300"
+    [ngClass]="activeTheme === 'light' 
+      ? 'bg-white border-slate-200/80 shadow-sm' 
+      : 'bg-[#0e0e11] border-white/5 shadow-2xl'">
 
-      <div class="flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative z-10">
-        <div class="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
-          <img [src]="getAvatar()" alt="User Profile Image" 
-            class="h-20 w-20 rounded-full border-4 object-cover shadow-lg"
-            [ngClass]="activeTheme === 'spotify' ? 'border-emerald-500' : 'border-violet-500'">
-          <div class="space-y-1">
-            <div class="inline-flex rounded-full border px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider font-mono"
-              [ngClass]="activeTheme === 'spotify' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-violet-500/10 border-violet-500/20 text-violet-400'">
-              Acoustic Profile Connected
-            </div>
-            <h2 class="text-2xl sm:text-3xl font-black tracking-tight"
-              [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
-              Welcome back, {{ userProfile?.displayName || 'Music Enthusiast' }}
-            </h2>
-            <p class="text-xs font-medium text-zinc-500">
-              Region: {{ userProfile?.country || 'US' }} • Subscription: {{ userProfile?.product || 'Free Account' }}
-            </p>
-          </div>
-        </div>
-        <div class="flex items-center space-x-3">
-          <a [href]="userProfile?.external_urls?.spotify || 'https://spotify.com'" target="_blank"
-            class="rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider border transition-all duration-300 inline-flex items-center space-x-1.5 active:scale-95"
-            [ngClass]="activeTheme === 'light' 
-              ? 'border-slate-300 bg-white hover:bg-slate-50 text-slate-800' 
-              : 'border-white/5 bg-white/5 hover:bg-white/10 text-white'">
-            <svg class="h-4 w-4 fill-current" viewBox="0 0 24 24">
-              <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.563.387-.857.207-2.377-1.454-5.37-1.783-8.893-.982-.336.076-.67-.135-.746-.472-.076-.336.136-.67.472-.746 3.856-.88 7.15-.506 9.817 1.13.295.18.387.563.207.863zm1.224-2.724c-.226.368-.707.487-1.074.26-2.723-1.675-6.874-2.16-10.085-1.185-.413.125-.847-.107-.972-.52-.125-.413.107-.847.52-.972 3.674-1.114 8.243-.566 11.35 1.348.368.226.488.707.261 1.069zm.107-2.858C14.47 8.784 8.755 8.596 5.437 9.602c-.506.153-1.04-.134-1.193-.64-.153-.506.134-1.04.64-1.193 3.805-1.155 10.116-.93 13.987 1.368.455.27.606.858.337 1.314-.27.455-.858.606-1.313.337z"/>
-            </svg>
-            <span>Open Profile</span>
-          </a>
-        </div>
-      </div>
-    </div>
+    <!-- Subtle Ambient Amethyst Glow -->
+    <div class="absolute -right-16 -top-16 h-64 w-64 rounded-full blur-[110px] opacity-25 pointer-events-none"
+      [ngClass]="getThemeGlowClass()"></div>
 
-    <!-- Quick Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      <!-- Stat 1 -->
-      <div class="rounded-2xl border p-6 backdrop-blur-md transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="flex items-center justify-between">
-          <span class="text-zinc-500 font-bold text-xs uppercase tracking-wider">Listening Streak</span>
-          <span class="text-xl">🔥</span>
-        </div>
-        <div class="mt-4 flex items-baseline space-x-1.5">
-          <span class="text-3xl font-black">12</span>
-          <span class="text-xs text-zinc-500 font-medium">days active</span>
-        </div>
-      </div>
-      <!-- Stat 2 -->
-      <div class="rounded-2xl border p-6 backdrop-blur-md transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="flex items-center justify-between">
-          <span class="text-zinc-500 font-bold text-xs uppercase tracking-wider">Library Size</span>
-          <span class="text-xl">📚</span>
-        </div>
-        <div class="mt-4 flex items-baseline space-x-1.5">
-          <span class="text-3xl font-black">3,420</span>
-          <span class="text-xs text-zinc-500 font-medium">tracks mapped</span>
-        </div>
-      </div>
-      <!-- Stat 3 -->
-      <div class="rounded-2xl border p-6 backdrop-blur-md transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="flex items-center justify-between">
-          <span class="text-zinc-500 font-bold text-xs uppercase tracking-wider">Followers Mapped</span>
-          <span class="text-xl">👥</span>
-        </div>
-        <div class="mt-4 flex items-baseline space-x-1.5">
-          <span class="text-3xl font-black">{{ userProfile?.followers?.total || '0' }}</span>
-          <span class="text-xs text-zinc-500 font-medium">followers</span>
-        </div>
-      </div>
-      <!-- Stat 4 -->
-      <div class="rounded-2xl border p-6 backdrop-blur-md transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="flex items-center justify-between">
-          <span class="text-zinc-500 font-bold text-xs uppercase tracking-wider">Weekly Listening Time</span>
-          <span class="text-xl">⏱️</span>
-        </div>
-        <div class="mt-4 flex items-baseline space-x-1.5">
-          <span class="text-3xl font-black">24.5</span>
-          <span class="text-xs text-zinc-500 font-medium">hours</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Overview Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <!-- Left: Spotify Profile Overview details card -->
-      <div class="lg:col-span-7 rounded-2xl border p-6 backdrop-blur-md space-y-6 transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="border-b pb-4" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-          <h3 class="text-base font-extrabold" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
-            Spotify Connection Credentials (Database View)
-          </h3>
-          <p class="text-xs text-zinc-500">Security verified token payloads</p>
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+      
+      <!-- Avatar & Titles -->
+      <div class="flex flex-col sm:flex-row items-center sm:items-center gap-5 text-center sm:text-left">
+        <div class="relative shrink-0">
+          <img [src]="getAvatar()" alt="User Profile Image"
+            class="h-20 w-20 sm:h-22 sm:w-22 rounded-full object-cover border-2 shadow-2xl"
+            [ngClass]="getThemeBorderClass()">
+          <span class="absolute bottom-1 right-1 h-4 w-4 rounded-full bg-emerald-500 border-2 border-[#0e0e11] ring-1 ring-emerald-500/40"></span>
         </div>
 
-        <div class="space-y-4 font-mono text-xs">
-          <div class="grid grid-cols-3 gap-2 py-1.5 border-b" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-            <span class="text-zinc-500 font-semibold">User Mapped ID:</span>
-            <span class="col-span-2 truncate font-bold text-zinc-400 select-all">{{ userProfile?.spotifyId }}</span>
+        <div class="space-y-1.5">
+          <div class="inline-flex items-center space-x-1.5 rounded-full border px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest font-mono"
+            [ngClass]="getThemeBadgeClass()">
+            <span class="h-1.5 w-1.5 rounded-full animate-pulse"
+              [ngClass]="activeTheme === 'spotify' ? 'bg-emerald-400' : 'bg-violet-400'"></span>
+            <span>Audio Matrix Connected</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 py-1.5 border-b" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-            <span class="text-zinc-500 font-semibold">Account ID:</span>
-            <span class="col-span-2 truncate font-bold select-all" [ngClass]="getThemeTextClass()">{{ userProfile?.account_id }}</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2 py-1.5 border-b" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-            <span class="text-zinc-500 font-semibold">Primary Email:</span>
-            <span class="col-span-2 truncate font-bold" [ngClass]="activeTheme === 'light' ? 'text-slate-700' : 'text-white'">{{ userProfile?.email || 'N/A' }}</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2 py-1.5 border-b" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-            <span class="text-zinc-500 font-semibold">Spotify URI:</span>
-            <span class="col-span-2 truncate text-zinc-400 select-all">{{ userProfile?.uri }}</span>
-          </div>
-          <div class="space-y-1.5 pt-2">
-            <span class="text-zinc-500 font-semibold">Active Access Token:</span>
-            <div class="rounded-lg p-2.5 text-[10px] break-all border"
-              [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200 text-slate-600' : 'bg-black/40 border-white/5 text-zinc-400'">
-              {{ userProfile?.spotifyAccessToken ? userProfile.spotifyAccessToken.substring(0, 70) + '...' : 'Missing' }}
-            </div>
-          </div>
-          <div class="space-y-1.5">
-            <span class="text-zinc-500 font-semibold">Saved Refresh Token:</span>
-            <div class="rounded-lg p-2.5 text-[10px] break-all border"
-              [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200 text-slate-600' : 'bg-black/40 border-white/5 text-zinc-400'">
-              {{ userProfile?.spotifyRefreshToken ? userProfile.spotifyRefreshToken.substring(0, 50) + '...' : 'Missing' }}
-            </div>
-          </div>
+
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight"
+            [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+            Welcome back, {{ userProfile?.displayName || 'Music Enthusiast' }}
+          </h2>
+
+          <p class="text-xs sm:text-sm font-medium text-zinc-400">
+            Your personal music universe.
+          </p>
         </div>
       </div>
 
-      <!-- Right: Playback simulation widget -->
-      <div class="lg:col-span-5 rounded-2xl border p-6 backdrop-blur-md flex flex-col justify-between transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="border-b pb-4" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-          <h3 class="text-base font-extrabold" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
-            Active Music Streamer
-          </h3>
-          <p class="text-xs text-zinc-500">Live playback telemetry simulation</p>
-        </div>
-
-        <div class="my-6 flex flex-col items-center text-center space-y-4">
-          <!-- Album cover with spinning vinyl -->
-          <div class="h-28 w-28 rounded-2xl bg-gradient-to-tr flex items-center justify-center shadow-2xl relative overflow-hidden shrink-0"
-            [ngClass]="currentTrack.coverColor">
-            <span class="text-lg font-black text-white tracking-wider font-mono">
-              {{ currentTrack.artist.substring(0,2).toUpperCase() }}
-            </span>
-            <!-- Vinyl indicator -->
-            <div *ngIf="isPlaying"
-              class="absolute inset-4 rounded-full border border-black/30 bg-black/60 flex items-center justify-center animate-spin duration-1000">
-              <div class="h-4 w-4 rounded-full bg-zinc-900 border flex items-center justify-center"
-                [ngClass]="activeTheme === 'spotify' ? 'border-emerald-500/50' : 'border-violet-500/50'">
-                <div class="h-1.5 w-1.5 rounded-full" [class.bg-violet-500]="activeTheme !== 'spotify'" [class.bg-emerald-500]="activeTheme === 'spotify'"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="space-y-1">
-            <h4 class="text-sm font-extrabold" [class.text-slate-900]="activeTheme === 'light'" [class.text-white]="activeTheme !== 'light'">
-              {{ currentTrack.title }}
-            </h4>
-            <p class="text-xs text-zinc-400 font-medium">{{ currentTrack.artist }} • <span class="italic text-[10px] font-semibold">{{ currentTrack.album }}</span></p>
-          </div>
-        </div>
-
-        <div class="space-y-3">
-          <!-- Timeline progress -->
-          <div class="flex items-center space-x-2 text-[9px] font-mono text-zinc-500">
-            <span>1:14</span>
-            <div class="flex-1 h-1 bg-zinc-800 rounded-full overflow-hidden relative cursor-pointer"
-              [class.bg-slate-200]="activeTheme === 'light'" (click)="playerProgress = 60">
-              <div class="h-full transition-all duration-300"
-                [class.bg-gradient-to-r]="activeTheme === 'purple' || activeTheme === 'light'"
-                [class.from-violet-500]="activeTheme === 'purple' || activeTheme === 'light'"
-                [class.to-cyan-400]="activeTheme === 'purple' || activeTheme === 'light'"
-                [class.bg-emerald-500]="activeTheme === 'spotify'"
-                [style.width.%]="playerProgress"></div>
-            </div>
-            <span>{{ currentTrack.duration }}</span>
-          </div>
-
-          <!-- Controls panel -->
-          <div class="flex items-center justify-center space-x-6">
-            <button class="text-zinc-500 hover:text-zinc-300 transition-colors duration-150 active:scale-90">
-              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
-              </svg>
-            </button>
-            <button (click)="togglePlayback()" 
-              class="h-10 w-10 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 shadow-md cursor-pointer"
-              [ngClass]="activeTheme === 'light' ? 'bg-slate-800 text-white' : 'bg-white text-black'">
-              <svg *ngIf="!isPlaying" class="h-4.5 w-4.5 fill-current ml-0.5" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-              <svg *ngIf="isPlaying" class="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24">
-                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-              </svg>
-            </button>
-            <button class="text-zinc-500 hover:text-zinc-300 transition-colors duration-150 active:scale-90">
-              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6z"/>
-              </svg>
-            </button>
-          </div>
-        </div>
+      <!-- Quick External Link Action -->
+      <div *ngIf="userProfile?.external_urls?.spotify" class="shrink-0 w-full sm:w-auto">
+        <a [href]="userProfile.external_urls.spotify" target="_blank" rel="noopener noreferrer"
+          class="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wide border transition-all duration-200 active:scale-95 cursor-pointer shadow-lg group"
+          [ngClass]="activeTheme === 'light' 
+            ? 'bg-slate-900 text-white hover:bg-slate-800 border-transparent' 
+            : 'bg-white/5 hover:bg-white/10 text-zinc-200 hover:text-white border-white/10 hover:border-violet-500/30'">
+          <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.494 17.306c-.215.353-.674.464-1.026.248-2.812-1.718-6.352-2.107-10.523-1.154-.403.093-.807-.156-.9-.559-.093-.404.156-.807.56-.9 4.568-1.044 8.49-.607 11.64 1.338.353.216.464.674.249 1.027zm1.465-3.26c-.27.44-.848.578-1.288.308-3.219-1.978-8.127-2.55-11.935-1.393-.497.15-1.022-.134-1.173-.63-.151-.496.134-1.022.63-1.173 4.356-1.322 9.775-.683 13.458 1.58.44.27.578.847.308 1.288zm.126-3.41c-3.86-2.292-10.228-2.503-13.896-1.39-.59.18-1.218-.16-1.397-.751-.18-.59.16-1.218.751-1.397 4.218-1.28 11.246-1.037 15.688 1.597.533.316.708 1.01.392 1.543-.316.533-1.01.708-1.543.392z"/>
+          </svg>
+          <span>Open in Spotify</span>
+          <svg class="h-3.5 w-3.5 text-zinc-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
       </div>
     </div>
   </div>
 
-  <!-- ==================== TAB 2: ANALYTICS ==================== -->
-  <div *ngIf="activeTab === 'analytics'" class="space-y-8">
-    <!-- Filters Header -->
-    <div class="flex items-center justify-between border-b pb-4" [ngClass]="activeTheme === 'light' ? 'border-slate-200' : 'border-white/5'">
+  <!-- ========================================== -->
+  <!-- 2. OVERVIEW METRIC CARDS                   -->
+  <!-- ========================================== -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+    <!-- Card 1: Followers -->
+    <div class="rounded-2xl p-5 border transition-all duration-300 hover:border-violet-500/30 group relative overflow-hidden"
+      [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200/80 shadow-sm' : 'bg-[#0e0e11] border-white/5'">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">Spotify Followers</span>
+        <div class="h-7 w-7 rounded-lg flex items-center justify-center text-xs border"
+          [ngClass]="activeTheme === 'light' ? 'bg-slate-100 border-slate-200 text-slate-700' : 'bg-white/5 border-white/5 text-zinc-400'">
+          👥
+        </div>
+      </div>
+      <div class="text-2xl font-black font-mono tracking-tight"
+        [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+        {{ (userProfile?.followers?.total ?? 0) | number }}
+      </div>
+      <p class="text-[11px] text-zinc-500 mt-1 font-medium">Verified account audience</p>
+    </div>
+
+    <!-- Card 2: Subscription Tier -->
+    <div class="rounded-2xl p-5 border transition-all duration-300 hover:border-violet-500/30 group relative overflow-hidden"
+      [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200/80 shadow-sm' : 'bg-[#0e0e11] border-white/5'">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">Subscription Tier</span>
+        <div class="h-7 w-7 rounded-lg flex items-center justify-center text-xs border"
+          [ngClass]="activeTheme === 'light' ? 'bg-slate-100 border-slate-200 text-slate-700' : 'bg-white/5 border-white/5 text-zinc-400'">
+          👑
+        </div>
+      </div>
+      <div class="text-2xl font-black font-mono tracking-tight uppercase"
+        [ngClass]="getThemeTextClass()">
+        {{ userProfile?.product || 'Free' }}
+      </div>
+      <p class="text-[11px] text-zinc-500 mt-1 font-medium">Spotify membership tier</p>
+    </div>
+
+    <!-- Card 3: Country / Region -->
+    <div class="rounded-2xl p-5 border transition-all duration-300 hover:border-violet-500/30 group relative overflow-hidden"
+      [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200/80 shadow-sm' : 'bg-[#0e0e11] border-white/5'">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">Market Territory</span>
+        <div class="h-7 w-7 rounded-lg flex items-center justify-center text-xs border"
+          [ngClass]="activeTheme === 'light' ? 'bg-slate-100 border-slate-200 text-slate-700' : 'bg-white/5 border-white/5 text-zinc-400'">
+          🌐
+        </div>
+      </div>
+      <div class="text-2xl font-black font-mono tracking-tight uppercase"
+        [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+        {{ userProfile?.country || 'Global' }}
+      </div>
+      <p class="text-[11px] text-zinc-500 mt-1 font-medium">Licensed content catalog</p>
+    </div>
+
+    <!-- Card 4: Connection Status -->
+    <div class="rounded-2xl p-5 border transition-all duration-300 hover:border-violet-500/30 group relative overflow-hidden"
+      [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200/80 shadow-sm' : 'bg-[#0e0e11] border-white/5'">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">Sync Pipeline</span>
+        <div class="h-7 w-7 rounded-lg flex items-center justify-center text-xs border"
+          [ngClass]="activeTheme === 'light' ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'">
+          ⚡
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-2xl font-black font-mono tracking-tight text-emerald-400">Synced</span>
+      </div>
+      <p class="text-[11px] text-zinc-500 mt-1 font-medium">Session token authenticated</p>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 3. SPOTIFY PROFILE SECTION                 -->
+  <!-- ========================================== -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Primary Spotify Identity Dossier -->
+    <div class="lg:col-span-2 rounded-2xl p-6 sm:p-7 border relative transition-all duration-300"
+      [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200/80 shadow-sm' : 'bg-[#0e0e11] border-white/5'">
+      
+      <div class="flex items-center justify-between border-b pb-4 mb-6"
+        [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
+        <div class="flex items-center space-x-2.5">
+          <span class="text-sm">🎧</span>
+          <h3 class="text-sm font-extrabold uppercase tracking-wider font-mono"
+            [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+            Spotify Identity Dossier
+          </h3>
+        </div>
+        <span class="text-[10px] font-mono text-zinc-500 uppercase">Verified Live</span>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Display Name Row -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border"
+          [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200/60' : 'bg-white/[0.02] border-white/5'">
+          <span class="text-xs text-zinc-500 font-medium">Display Name</span>
+          <span class="text-xs font-bold font-mono tracking-wide"
+            [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-zinc-100'">
+            {{ userProfile?.displayName || 'Not Specified' }}
+          </span>
+        </div>
+
+        <!-- Email Row -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border"
+          [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200/60' : 'bg-white/[0.02] border-white/5'">
+          <span class="text-xs text-zinc-500 font-medium">Email Address</span>
+          <span class="text-xs font-mono font-semibold"
+            [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-zinc-200'">
+            {{ userProfile?.email || 'Encrypted / Private' }}
+          </span>
+        </div>
+
+        <!-- Followers Count Row -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border"
+          [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200/60' : 'bg-white/[0.02] border-white/5'">
+          <span class="text-xs text-zinc-500 font-medium">Network Followers</span>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-bold font-mono" [ngClass]="getThemeTextClass()">
+              {{ (userProfile?.followers?.total ?? 0) | number }}
+            </span>
+            <span class="text-[10px] text-zinc-500 font-mono">accounts</span>
+          </div>
+        </div>
+
+        <!-- Spotify URI / Identifier -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border"
+          [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200/60' : 'bg-white/[0.02] border-white/5'">
+          <span class="text-xs text-zinc-500 font-medium">Spotify URI</span>
+          <span class="text-[11px] font-mono truncate max-w-xs text-zinc-400" [title]="userProfile?.uri">
+            {{ userProfile?.uri || ('spotify:user:' + userProfile?.spotifyId) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="pt-5 mt-5 border-t flex flex-col sm:flex-row items-center justify-between gap-4"
+        [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
+        <p class="text-[11px] text-zinc-500">
+          Profile data synchronized directly with Spotify's Web API v1.
+        </p>
+
+        <a *ngIf="userProfile?.external_urls?.spotify"
+          [href]="userProfile.external_urls.spotify" target="_blank" rel="noopener noreferrer"
+          class="text-xs font-semibold inline-flex items-center space-x-1.5 transition-colors cursor-pointer"
+          [ngClass]="getThemeTextClass()">
+          <span>View Public Spotify Profile</span>
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Side: Account Verification & Security Metrics -->
+    <div class="rounded-2xl p-6 sm:p-7 border flex flex-col justify-between transition-all duration-300"
+      [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200/80 shadow-sm' : 'bg-[#0e0e11] border-white/5'">
+      
       <div>
-        <h2 class="text-lg font-extrabold" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">Music Analytics Engine</h2>
-        <p class="text-xs text-zinc-500">Acoustic nodes and temporal statistics</p>
-      </div>
-      <!-- Time Range Select buttons -->
-      <div class="flex p-1 rounded-xl border space-x-1"
-        [ngClass]="activeTheme === 'light' ? 'bg-slate-200/50 border-slate-200' : 'bg-zinc-900/60 border-white/5'">
-        <button (click)="selectedTimeRange = 'short_term'"
-          class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer"
-          [ngClass]="selectedTimeRange === 'short_term'
-            ? (activeTheme === 'light' ? 'bg-white text-indigo-600 shadow-sm' : 'bg-white/10 text-white')
-            : 'text-zinc-500 hover:text-zinc-300'">
-          4 Weeks
-        </button>
-        <button (click)="selectedTimeRange = 'medium_term'"
-          class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer"
-          [ngClass]="selectedTimeRange === 'medium_term'
-            ? (activeTheme === 'light' ? 'bg-white text-indigo-600 shadow-sm' : 'bg-white/10 text-white')
-            : 'text-zinc-500 hover:text-zinc-300'">
-          6 Months
-        </button>
-        <button (click)="selectedTimeRange = 'long_term'"
-          class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer"
-          [ngClass]="selectedTimeRange === 'long_term'
-            ? (activeTheme === 'light' ? 'bg-white text-indigo-600 shadow-sm' : 'bg-white/10 text-white')
-            : 'text-zinc-500 hover:text-zinc-300'">
-          All Time
-        </button>
-      </div>
-    </div>
-
-    <!-- Analytics Dashboard Panels -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <!-- Top Artists -->
-      <div class="lg:col-span-6 rounded-2xl border p-6 backdrop-blur-md space-y-4 transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 font-mono">Top Mapped Artists</h3>
-
-        <div class="space-y-3.5">
-          <div *ngFor="let artist of (selectedTimeRange === 'short_term' ? topArtistsShort : selectedTimeRange === 'medium_term' ? topArtistsMedium : topArtistsLong); let i = index"
-            class="flex items-center justify-between rounded-xl p-3 border transition-colors duration-200"
-            [ngClass]="activeTheme === 'light' ? 'bg-slate-50/60 border-slate-100 hover:bg-slate-100/50' : 'bg-black/30 border-white/5 hover:bg-white/5'">
-            <div class="flex items-center space-x-3.5 overflow-hidden">
-              <div class="h-10 w-10 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 text-white shadow-inner font-mono"
-                [ngClass]="artist.cover">
-                {{ artist.name.substring(0, 2).toUpperCase() }}
-              </div>
-              <div class="overflow-hidden">
-                <h4 class="text-xs font-extrabold truncate" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
-                  {{ artist.name }}
-                </h4>
-                <p class="text-[10px] text-zinc-400 truncate">{{ artist.genres }}</p>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-xs font-black" [ngClass]="getThemeTextClass()">{{ artist.playCount }} plays</div>
-              <div class="text-[8px] font-mono tracking-widest text-zinc-500 uppercase">Rank #{{ i + 1 }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Top Tracks -->
-      <div class="lg:col-span-6 rounded-2xl border p-6 backdrop-blur-md space-y-4 transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 font-mono">Top Mapped Tracks</h3>
-
-        <div class="space-y-3.5">
-          <div *ngFor="let track of (selectedTimeRange === 'short_term' ? topTracksShort : selectedTimeRange === 'medium_term' ? topTracksMedium : topTracksLong); let i = index"
-            class="flex items-center justify-between rounded-xl p-3 border transition-colors duration-200"
-            [ngClass]="activeTheme === 'light' ? 'bg-slate-50/60 border-slate-100 hover:bg-slate-100/50' : 'bg-black/30 border-white/5 hover:bg-white/5'">
-            <div class="flex items-center space-x-3.5 overflow-hidden">
-              <span class="text-xs font-mono text-zinc-500 w-5 text-right font-black">#{{ i + 1 }}</span>
-              <div class="overflow-hidden">
-                <h4 class="text-xs font-extrabold truncate" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
-                  {{ track.title }}
-                </h4>
-                <p class="text-[10px] text-zinc-400 truncate">{{ track.artist }} • <span class="italic text-[9px]">{{ track.album }}</span></p>
-              </div>
-            </div>
-            <div class="text-right shrink-0">
-              <div class="text-xs font-bold" [ngClass]="getThemeTextClass()">{{ track.match }} score</div>
-              <span class="text-[9px] text-zinc-500 font-mono">{{ track.duration }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Genres & Activity Heatmap row -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <!-- Genres -->
-      <div class="lg:col-span-5 rounded-2xl border p-6 backdrop-blur-md space-y-6 transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div>
-          <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 font-mono">Most Mapped Genres</h3>
-          <p class="text-[10px] text-zinc-400">Relative genre density score</p>
+        <div class="flex items-center space-x-2 border-b pb-4 mb-6"
+          [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
+          <span class="text-sm">🛡️</span>
+          <h3 class="text-sm font-extrabold uppercase tracking-wider font-mono"
+            [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+            Security & Controls
+          </h3>
         </div>
 
         <div class="space-y-4">
-          <div *ngFor="let genre of genresBreakdown" class="space-y-1.5">
-            <div class="flex justify-between text-xs font-mono">
-              <span class="font-semibold text-zinc-400">{{ genre.name }}</span>
-              <span class="font-bold" [ngClass]="getThemeTextClass()">{{ genre.percentage }}%</span>
-            </div>
-            <div class="h-2 w-full bg-zinc-800 rounded-full overflow-hidden"
-              [class.bg-slate-200]="activeTheme === 'light'">
-              <div class="h-full rounded-full transition-all duration-500" [ngClass]="genre.color"
-                [style.width.%]="genre.percentage"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="border-t pt-4 space-y-2" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-          <div class="flex justify-between text-xs">
-            <span class="text-zinc-500 font-semibold font-mono uppercase tracking-wider text-[10px]">Artist Diversity Index</span>
-            <span class="font-black text-emerald-500">8.4 / 10 (High)</span>
-          </div>
-          <p class="text-[10px] text-zinc-400 leading-normal">Your library indicates a highly eclectic palette with extensive exposure to independent and underground labels.</p>
-        </div>
-      </div>
-
-      <!-- Activity Heatmap -->
-      <div class="lg:col-span-7 rounded-2xl border p-6 backdrop-blur-md space-y-4 transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div>
-          <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 font-mono">Hourly Activity Matrix</h3>
-          <p class="text-[10px] text-zinc-400">Weekly listening peaks by hour block</p>
-        </div>
-
-        <!-- Heatmap Grid Simulation -->
-        <div class="space-y-2 pt-2">
-          <div class="grid grid-cols-12 gap-1 text-[8px] font-mono text-zinc-500 text-center uppercase tracking-widest font-black">
-            <span>MON</span>
-            <span>TUE</span>
-            <span>WED</span>
-            <span>THU</span>
-            <span>FRI</span>
-            <span>SAT</span>
-            <span>SUN</span>
-            <span class="col-span-5">Activity Block</span>
+          <!-- Auth Type -->
+          <div class="space-y-1">
+            <span class="text-[10px] uppercase font-mono tracking-widest text-zinc-500">Authentication Protocol</span>
+            <p class="text-xs font-bold text-zinc-300 font-mono">OAuth 2.0 Authorization Code</p>
           </div>
 
-          <!-- Heatmap blocks -->
-          <div *ngFor="let row of [1,2,3,4,5]" class="grid grid-cols-12 gap-1.5">
-            <div *ngFor="let col of [1,2,3,4,5,6,7]" 
-              class="h-6 rounded-md transition-colors duration-200 hover:scale-105 cursor-pointer shadow-inner"
-              [ngClass]="col === 3 || col === 5 
-                ? (activeTheme === 'spotify' ? 'bg-emerald-500/50' : 'bg-violet-500/50') 
-                : col === 2 || col === 6 
-                  ? (activeTheme === 'spotify' ? 'bg-emerald-600/20' : 'bg-violet-600/20') 
-                  : (activeTheme === 'light' ? 'bg-slate-100' : 'bg-zinc-900/50')">
-            </div>
-            <div class="col-span-5 flex items-center text-[9px] text-zinc-400 font-mono pl-2">
-              Block {{ row * 4 }}:00 - {{ (row * 4) + 4 }}:00
-            </div>
-          </div>
-        </div>
-
-        <div class="border-t pt-4 text-xs font-mono flex items-center justify-between"
-          [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-          <span class="text-zinc-500 font-semibold uppercase tracking-wider text-[10px]">Peak Listening Window</span>
-          <span [ngClass]="getThemeTextClass()" class="font-extrabold">20:00 - 23:30 (Late Night Vibes)</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== TAB 3: PLAYLISTS ==================== -->
-  <div *ngIf="activeTab === 'playlists'" class="space-y-8">
-    <!-- Header -->
-    <div>
-      <h2 class="text-lg font-extrabold" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">Playlist Curation Manager</h2>
-      <p class="text-xs text-zinc-500">De-duplicate tracks and audit metadata attributes</p>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <!-- Playlists list -->
-      <div class="lg:col-span-6 rounded-2xl border p-6 backdrop-blur-md space-y-4 transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 font-mono">Your Spotify Playlists</h3>
-
-        <div class="space-y-3">
-          <div *ngFor="let pl of playlists"
-            class="flex items-center justify-between rounded-xl p-3.5 border transition-colors duration-200"
-            [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200' : 'bg-black/40 border-white/5'">
-            <div class="space-y-1 overflow-hidden pr-2">
-              <h4 class="text-xs font-extrabold truncate" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
-                {{ pl.name }}
-              </h4>
-              <p class="text-[10px] text-zinc-400 font-medium font-mono">{{ pl.tracks }} tracks • {{ pl.vibe }}</p>
-            </div>
-            <div class="text-right">
-              <span class="inline-block rounded-full px-2.5 py-0.5 text-[8px] font-mono tracking-wider font-extrabold uppercase"
-                [ngClass]="pl.status === 'Healthy' 
-                  ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' 
-                  : 'bg-rose-500/10 border border-rose-500/20 text-rose-400 animate-pulse'">
-                {{ pl.status }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Duplicate Checker tool -->
-      <div class="lg:col-span-6 rounded-2xl border p-6 backdrop-blur-md space-y-6 transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="border-b pb-4" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 font-mono">Duplicate Track Scanner</h3>
-          <p class="text-xs text-zinc-400">Clean up library redundancy with acoustic fingerprinting</p>
-        </div>
-
-        <!-- Check button or loader -->
-        <div *ngIf="!isScanningDuplicates && !scanComplete" class="text-center py-6 space-y-4">
-          <p class="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
-            Our algorithm maps identical track titles and matches their acoustic characteristics to flag potential duplicate items across your lists.
-          </p>
-          <button (click)="startDuplicateScan()" 
-            class="rounded-full px-6 py-2.5 text-xs uppercase font-extrabold tracking-wider transition-all duration-300 active:scale-95 cursor-pointer"
-            [ngClass]="getThemeBgClass()">
-            Scan Playlists
-          </button>
-        </div>
-
-        <div *ngIf="isScanningDuplicates" class="flex flex-col items-center justify-center py-8 space-y-4">
-          <div class="h-8 w-8 border-3 border-t-transparent rounded-full animate-spin"
-            [ngClass]="activeTheme === 'spotify' ? 'border-emerald-500' : 'border-violet-500'"></div>
-          <p class="text-xs text-zinc-500 font-mono uppercase tracking-widest font-bold">Scanning playlists metadata...</p>
-        </div>
-
-        <!-- Scan results -->
-        <div *ngIf="scanComplete && !isScanningDuplicates" class="space-y-4">
-          <div *ngIf="duplicatesList.length > 0; else noDuplicates" class="space-y-3">
-            <div class="bg-rose-500/10 border border-rose-500/20 rounded-xl p-3.5 flex items-start space-x-3">
-              <span class="text-base shrink-0">🚨</span>
-              <div class="space-y-1">
-                <h4 class="text-xs font-bold text-rose-400">Redundancies Flagged</h4>
-                <p class="text-[10px] text-zinc-400 leading-normal">
-                  Found {{ duplicatesList.length }} duplicates inside <span class="font-extrabold text-zinc-300">"Indie Chill Vibes"</span>. You can safely merge them.
-                </p>
-              </div>
-            </div>
-
-            <!-- List -->
-            <div class="space-y-2 max-h-[160px] overflow-y-auto pr-1">
-              <div *ngFor="let dup of duplicatesList" 
-                class="flex items-center justify-between rounded-xl p-2.5 border text-xs"
-                [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-black/30 border-white/5'">
-                <div>
-                  <h5 class="font-bold" [class.text-slate-900]="activeTheme === 'light'">{{ dup.title }}</h5>
-                  <p class="text-[9px] text-zinc-400">{{ dup.artist }} • <span class="text-rose-400/80">{{ dup.reason }}</span></p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Clean button -->
-            <div class="pt-2 text-right">
-              <button (click)="removeDuplicates()" 
-                class="rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider bg-red-600 hover:bg-red-500 text-white transition-all duration-300 active:scale-95 cursor-pointer">
-                Clear Duplicates
-              </button>
+          <!-- Explicit Content -->
+          <div class="space-y-1 pt-2 border-t" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
+            <span class="text-[10px] uppercase font-mono tracking-widest text-zinc-500">Explicit Content Filter</span>
+            <div class="flex items-center space-x-2">
+              <span class="h-2 w-2 rounded-full"
+                [ngClass]="userProfile?.explicit_content?.filter_enabled ? 'bg-amber-400' : 'bg-emerald-400'"></span>
+              <p class="text-xs font-semibold text-zinc-300">
+                {{ userProfile?.explicit_content?.filter_enabled ? 'Filtered Content' : 'Unrestricted Audio' }}
+              </p>
             </div>
           </div>
 
-          <ng-template #noDuplicates>
-            <div class="text-center py-6 space-y-4">
-              <div class="text-2xl">✅</div>
-              <h4 class="text-xs font-bold" [class.text-slate-900]="activeTheme === 'light'">All Playlists are Healthy</h4>
-              <p class="text-[10px] text-zinc-500 max-w-xs mx-auto leading-relaxed">No duplicate tracks found. Audix has successfully indexed and verified all track fingerprints.</p>
-              <button (click)="scanComplete = false"
-                class="text-[10px] font-bold uppercase tracking-widest hover:underline"
-                [ngClass]="getThemeTextClass()">
-                Scan Again
-              </button>
-            </div>
-          </ng-template>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== TAB 4: AI STUDIO ==================== -->
-  <div *ngIf="activeTab === 'ai-studio'" class="space-y-8">
-    <!-- Header -->
-    <div>
-      <h2 class="text-lg font-extrabold" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">AI Music Engineering</h2>
-      <p class="text-xs text-zinc-500">Neural prompt playlist compiler</p>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <!-- Left input form -->
-      <div class="lg:col-span-6 rounded-2xl border p-6 backdrop-blur-md space-y-6 transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="border-b pb-4" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 font-mono">Neural Playlist Prompt</h3>
-          <p class="text-xs text-zinc-400">Describe the atmosphere, tempo, weather, or activity</p>
-        </div>
-
-        <form (submit)="generateAiPlaylist($event)" class="space-y-4">
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-mono uppercase tracking-wider font-bold text-zinc-500">Acoustic Prompt</label>
-            <textarea [(ngModel)]="aiPrompt" name="aiPrompt" rows="3"
-              placeholder="Example: Retro cyberpunk racing synthwave with deep heavy basslines for late night driving..."
-              class="w-full rounded-xl border p-3.5 text-xs transition-all duration-200 outline-none outline-0 resize-none font-sans"
-              [ngClass]="activeTheme === 'light' 
-                ? 'bg-slate-50 border-slate-200 text-slate-800 focus:border-indigo-600 focus:bg-white' 
-                : 'bg-black/60 border-white/5 text-zinc-300 focus:border-violet-500/40 focus:bg-black'"></textarea>
-          </div>
-
-          <div class="text-right">
-            <button type="submit" [disabled]="isGeneratingPlaylist || !aiPrompt.trim()"
-              class="rounded-full px-6 py-2.5 text-xs uppercase font-extrabold tracking-wider transition-all duration-300 active:scale-95 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
-              [ngClass]="getThemeBgClass()">
-              {{ isGeneratingPlaylist ? 'Compiling Nodes...' : 'Compile AI Playlist' }}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Right Output display -->
-      <div class="lg:col-span-6 rounded-2xl border p-6 backdrop-blur-md flex flex-col justify-between transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="border-b pb-4" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 font-mono">Compiled Curation</h3>
-          <p class="text-xs text-zinc-400">Generated playlist details and matching nodes</p>
-        </div>
-
-        <div class="flex-grow flex flex-col justify-center my-4 min-h-[160px]">
-          <!-- Default placeholder -->
-          <div *ngIf="!isGeneratingPlaylist && !generatedPlaylist" class="text-center py-6 text-zinc-500 space-y-2">
-            <span class="text-2xl">🧠</span>
-            <p class="text-xs">Awaiting neural input parameters...</p>
-          </div>
-
-          <!-- Loading generation state -->
-          <div *ngIf="isGeneratingPlaylist" class="flex flex-col items-center justify-center space-y-4">
-            <div class="h-8 w-8 border-3 border-t-transparent rounded-full animate-spin"
-              [ngClass]="activeTheme === 'spotify' ? 'border-emerald-500' : 'border-violet-500'"></div>
-            <p class="text-xs text-zinc-500 font-mono uppercase tracking-widest font-bold">Mapping acoustic vectors...</p>
-          </div>
-
-          <!-- Output playlist details -->
-          <div *ngIf="generatedPlaylist && !isGeneratingPlaylist" class="space-y-4 animate-[fadeIn_0.3s_ease-out]">
-            <div class="p-3.5 rounded-xl border"
-              [ngClass]="activeTheme === 'light' ? 'bg-indigo-50/50 border-indigo-100' : 'bg-violet-500/5 border-violet-500/10'">
-              <h4 class="text-xs font-black" [ngClass]="getThemeTextClass()">{{ generatedPlaylist.name }}</h4>
-              <p class="text-[10px] text-zinc-400 mt-1 leading-normal font-medium">{{ generatedPlaylist.description }}</p>
-            </div>
-
-            <!-- Songs -->
-            <div class="space-y-2">
-              <div *ngFor="let item of generatedPlaylist.tracks" 
-                class="flex items-center justify-between rounded-lg p-2 border text-xs"
-                [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-black/30 border-white/5'">
-                <div>
-                  <h5 class="font-extrabold" [class.text-slate-900]="activeTheme === 'light'">{{ item.title }}</h5>
-                  <p class="text-[9px] text-zinc-400">{{ item.artist }}</p>
-                </div>
-                <span class="text-[10px] font-bold text-emerald-500 font-mono">{{ item.matchScore }} match</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== TAB 5: DISCOVERY ==================== -->
-  <div *ngIf="activeTab === 'discovery'" class="space-y-8">
-    <!-- Header -->
-    <div>
-      <h2 class="text-lg font-extrabold" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">Discovery Node Engine</h2>
-      <p class="text-xs text-zinc-500">Uncover hidden gems and underrated artist vectors</p>
-    </div>
-
-    <!-- Discovery panels -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <!-- Hidden Gems -->
-      <div class="lg:col-span-6 rounded-2xl border p-6 backdrop-blur-md space-y-4 transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 font-mono">Hidden Gems (Highly Underrated)</h3>
-
-        <div class="space-y-3.5">
-          <div class="flex items-center justify-between rounded-xl p-3 border"
-            [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-black/30 border-white/5'">
-            <div>
-              <h4 class="text-xs font-black" [class.text-slate-900]="activeTheme === 'light'">Kavinsky</h4>
-              <p class="text-[9px] text-zinc-400">95% Match • Electronic / Outrun</p>
-            </div>
-            <span class="rounded-full px-2 py-0.5 text-[8px] font-bold bg-amber-500/10 border border-amber-500/20 text-amber-400 uppercase tracking-widest font-mono">Underrated</span>
-          </div>
-          <div class="flex items-center justify-between rounded-xl p-3 border"
-            [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-black/30 border-white/5'">
-            <div>
-              <h4 class="text-xs font-black" [class.text-slate-900]="activeTheme === 'light'">Beach House</h4>
-              <p class="text-[9px] text-zinc-400">92% Match • Dream Pop</p>
-            </div>
-            <span class="rounded-full px-2 py-0.5 text-[8px] font-bold bg-amber-500/10 border border-amber-500/20 text-amber-400 uppercase tracking-widest font-mono">Obscure</span>
-          </div>
-          <div class="flex items-center justify-between rounded-xl p-3 border"
-            [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-black/30 border-white/5'">
-            <div>
-              <h4 class="text-xs font-black" [class.text-slate-900]="activeTheme === 'light'">Home</h4>
-              <p class="text-[9px] text-zinc-400">89% Match • Chillsynth</p>
-            </div>
-            <span class="rounded-full px-2 py-0.5 text-[8px] font-bold bg-amber-500/10 border border-amber-500/20 text-amber-400 uppercase tracking-widest font-mono">Independent</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Trending Recommendations -->
-      <div class="lg:col-span-6 rounded-2xl border p-6 backdrop-blur-md space-y-4 transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 font-mono">Acoustic Matches (Similar Songs)</h3>
-
-        <div class="space-y-3.5">
-          <div class="flex items-center justify-between rounded-xl p-3 border"
-            [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-black/30 border-white/5'">
-            <div>
-              <h4 class="text-xs font-black" [class.text-slate-900]="activeTheme === 'light'">Nightcall</h4>
-              <p class="text-[9px] text-zinc-400">Similar to "Starboy" by The Weeknd</p>
-            </div>
-            <span class="text-[10px] font-mono font-bold text-emerald-500">96% Similarity</span>
-          </div>
-          <div class="flex items-center justify-between rounded-xl p-3 border"
-            [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-black/30 border-white/5'">
-            <div>
-              <h4 class="text-xs font-black" [class.text-slate-900]="activeTheme === 'light'">Midnight City</h4>
-              <p class="text-[9px] text-zinc-400">Similar to "Instant Crush" by Daft Punk</p>
-            </div>
-            <span class="text-[10px] font-mono font-bold text-emerald-500">91% Similarity</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== TAB 6: SOCIAL ==================== -->
-  <div *ngIf="activeTab === 'social'" class="space-y-8">
-    <!-- Header -->
-    <div>
-      <h2 class="text-lg font-extrabold" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">Social Matrix Curation</h2>
-      <p class="text-xs text-zinc-500">Compare listening vectors and share cards</p>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <!-- Share Profile Card preview -->
-      <div class="lg:col-span-5 rounded-2xl border p-6 backdrop-blur-md flex flex-col justify-between transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="border-b pb-4" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 font-mono">Public Music Card</h3>
-          <p class="text-xs text-zinc-400">Generate public shareable graphic badge</p>
-        </div>
-
-        <!-- Graphic container mockup -->
-        <div class="my-6 rounded-2xl border p-5 bg-gradient-to-br transition-all duration-300 shadow-lg text-center"
-          [ngClass]="activeTheme === 'light' 
-            ? 'from-indigo-600 to-violet-700 text-white border-indigo-500' 
-            : (activeTheme === 'spotify' 
-              ? 'from-[#0b0b0c] to-[#1a1a1f] text-zinc-200 border-white/5' 
-              : 'from-[#0f0f11] to-[#1c1429] text-zinc-200 border-white/5')">
-          <div class="flex items-center justify-between text-[8px] font-mono tracking-widest text-zinc-400 uppercase">
-            <span>AUDIX FM</span>
-            <span>SONIC DNA ARCHETYPE</span>
-          </div>
-
-          <div class="my-5 space-y-2">
-            <h4 class="text-lg font-black tracking-tight">Atmospheric Dreamer</h4>
-            <p class="text-[10px] text-zinc-400 font-mono leading-normal">
-              User: {{ userProfile?.displayName || 'Music Enthusiast' }} <br>
-              Top Genre: Synthwave • Acoustic Index: 8.4
+          <!-- Account Type -->
+          <div class="space-y-1 pt-2 border-t" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
+            <span class="text-[10px] uppercase font-mono tracking-widest text-zinc-500">Profile Entity</span>
+            <p class="text-xs font-semibold uppercase text-zinc-300 font-mono">
+              {{ userProfile?.type || 'User' }}
             </p>
           </div>
 
-          <div class="border-t pt-3 flex justify-between items-center text-[9px] font-mono text-zinc-400"
-            [ngClass]="activeTheme === 'light' ? 'border-indigo-500' : 'border-white/5'">
-            <span>SCORE: 3,420 TRACKS</span>
-            <span [ngClass]="activeTheme === 'light' ? 'text-white' : getThemeTextClass()" class="font-extrabold">VERIFIED</span>
+          <!-- Image Asset Count -->
+          <div class="space-y-1 pt-2 border-t" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
+            <span class="text-[10px] uppercase font-mono tracking-widest text-zinc-500">Profile Artwork</span>
+            <p class="text-xs font-semibold text-zinc-300">
+              {{ userProfile?.images?.length || 0 }} portrait asset(s) linked
+            </p>
           </div>
         </div>
-
-        <button class="w-full rounded-full py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 active:scale-95 cursor-pointer border"
-          [ngClass]="activeTheme === 'light' 
-            ? 'border-slate-300 bg-white hover:bg-slate-50 text-slate-800' 
-            : 'border-white/5 bg-white/5 hover:bg-white/10 text-white'">
-          Share Public Link
-        </button>
       </div>
 
-      <!-- Compare taste interactive -->
-      <div class="lg:col-span-7 rounded-2xl border p-6 backdrop-blur-md space-y-6 transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="border-b pb-4" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 font-mono">Taste Compatibility Index</h3>
-          <p class="text-xs text-zinc-400">Select a contact below to compute your overlap vectors</p>
-        </div>
-
-        <!-- Contact List -->
-        <div class="grid grid-cols-3 gap-4">
-          <button *ngFor="let fr of friendsList" 
-            (click)="checkCompatibility(fr.name)"
-            class="flex flex-col items-center p-3 rounded-xl border transition-all duration-200 cursor-pointer text-center"
-            [ngClass]="selectedFriend === fr.name 
-              ? (activeTheme === 'purple' ? 'border-violet-500/40 bg-violet-500/10' : 
-                 activeTheme === 'spotify' ? 'border-emerald-500/40 bg-emerald-500/10' : 
-                 'border-indigo-500/40 bg-indigo-50')
-              : (activeTheme === 'light' ? 'border-slate-200 bg-slate-50/60 hover:bg-slate-100' : 'border-white/5 bg-black/40 hover:bg-white/5')">
-            <img [src]="fr.avatar" alt="Friend Profile" class="h-10 w-10 rounded-full border shadow-inner shrink-0">
-            <span class="text-[10px] font-bold mt-2 truncate w-full" [class.text-slate-800]="activeTheme === 'light'">{{ fr.name.split(' ')[0] }}</span>
-          </button>
-        </div>
-
-        <!-- Output Compatibility Calculation -->
-        <div class="min-h-[100px] flex flex-col justify-center">
-          <div *ngIf="!selectedFriend" class="text-center text-zinc-500 text-xs py-4 font-mono">
-            Awaiting selection...
-          </div>
-
-          <div *ngIf="selectedFriend && compatibilityScore === null" class="flex flex-col items-center justify-center py-4 space-y-2">
-            <div class="h-5 w-5 border-2 border-t-transparent rounded-full animate-spin"
-              [ngClass]="activeTheme === 'spotify' ? 'border-emerald-500' : 'border-violet-500'"></div>
-            <span class="text-[9px] text-zinc-500 font-mono">Calculating shared vectors...</span>
-          </div>
-
-          <div *ngIf="selectedFriend && compatibilityScore !== null" class="space-y-4 animate-[fadeIn_0.3s_ease-out]">
-            <div class="flex items-center justify-between border-t pt-4"
-              [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
-              <div class="space-y-1">
-                <h4 class="text-xs font-bold text-zinc-400">Match score with {{ selectedFriend.split(' ')[0] }}</h4>
-                <p class="text-[10px] text-zinc-500">Shared artists: <span class="font-extrabold text-zinc-300">{{ sharedArtists.join(', ') }}</span></p>
-              </div>
-              <div class="text-right shrink-0">
-                <span class="text-2xl font-black font-mono" [ngClass]="getThemeTextClass()">{{ compatibilityScore }}%</span>
-                <div class="text-[8px] font-mono tracking-widest text-zinc-500 uppercase font-black">Compatibility</div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- Quick Safety Badge -->
+      <div class="mt-6 pt-4 border-t flex items-center space-x-2 text-[10px] font-mono text-zinc-500"
+        [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
+        <span class="text-emerald-400">●</span>
+        <span>Credentials secured via local storage token</span>
       </div>
     </div>
   </div>
 
-  <!-- ==================== TAB 7: ACHIEVEMENTS ==================== -->
-  <div *ngIf="activeTab === 'achievements'" class="space-y-8">
-    <!-- Header -->
-    <div>
-      <h2 class="text-lg font-extrabold" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">Listener Achievements Matrix</h2>
-      <p class="text-xs text-zinc-500">Collect aesthetic music badges and unlock levels</p>
+  <!-- ========================================== -->
+  <!-- 4. QUICK ACCESS SECTION                    -->
+  <!-- ========================================== -->
+  <div class="space-y-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <span class="text-sm">⚡</span>
+        <h3 class="text-sm font-extrabold uppercase tracking-wider font-mono"
+          [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+          Quick Access Modules
+        </h3>
+      </div>
+      <span class="text-[10px] font-mono text-zinc-500 tracking-wider">Audix Core Suite</span>
     </div>
 
-    <!-- Achievements Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      <div *ngFor="let ach of achievements"
-        class="rounded-2xl border p-5 backdrop-blur-md flex items-start space-x-4 transition-all duration-300 relative overflow-hidden"
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <!-- Module 1: Music Analytics -->
+      <div [routerLink]="['/dashboard']" [queryParams]="{ tab: 'analytics' }"
+        class="rounded-2xl p-5 border transition-all duration-300 hover:border-violet-500/40 hover:-translate-y-0.5 cursor-pointer group flex flex-col justify-between"
         [ngClass]="activeTheme === 'light' 
-          ? (ach.unlocked ? 'bg-white border-slate-200 shadow-sm' : 'bg-slate-50/50 border-slate-100 opacity-60')
-          : (ach.unlocked ? 'bg-[#121214]/60 border-white/5' : 'bg-black/20 border-white/5 opacity-55')">
-        
-        <!-- Glow indicator on unlocked -->
-        <div *ngIf="ach.unlocked" 
-          class="absolute -right-8 -top-8 h-20 w-20 rounded-full blur-[30px] opacity-10 pointer-events-none"
-          [ngClass]="activeTheme === 'spotify' ? 'bg-emerald-500' : 'bg-violet-500'"></div>
-
-        <!-- Badge Circle -->
-        <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr flex items-center justify-center text-xl shrink-0 shadow-inner"
-          [ngClass]="ach.badgeColor">
-          {{ ach.icon }}
-        </div>
-
-        <div class="space-y-1 overflow-hidden pr-2">
-          <div class="flex items-center space-x-2">
-            <h4 class="text-xs font-black truncate" [class.text-slate-900]="activeTheme === 'light'">
-              {{ ach.title }}
-            </h4>
-            <span class="inline-block rounded px-1.5 py-0.5 text-[8px] font-mono tracking-wider font-extrabold uppercase shrink-0"
-              [ngClass]="ach.unlocked 
-                ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' 
-                : 'bg-zinc-800 text-zinc-500'">
-              {{ ach.unlocked ? 'UNLOCKED' : 'LOCKED' }}
-            </span>
+          ? 'bg-white border-slate-200/80 shadow-sm hover:shadow-md' 
+          : 'bg-[#0e0e11] border-white/5 hover:bg-[#121217]'">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-2xl">🎵</span>
+            <span class="text-[9px] font-mono uppercase font-bold tracking-widest px-2 py-0.5 rounded-full border"
+              [ngClass]="getThemeBadgeClass()">Acoustic</span>
           </div>
-          <p class="text-[10px] text-zinc-400 leading-normal">{{ ach.desc }}</p>
+          <h4 class="text-sm font-bold tracking-tight text-white group-hover:text-violet-400 transition-colors">
+            Music Analytics
+          </h4>
+          <p class="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+            Acoustic vectors, sonic profile balance, and listening velocity.
+          </p>
+        </div>
+        <div class="pt-4 mt-3 flex items-center justify-between text-[11px] font-semibold text-zinc-400 group-hover:text-zinc-200 transition-colors">
+          <span>Explore Analytics</span>
+          <svg class="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Module 2: Playlist Curation -->
+      <div [routerLink]="['/dashboard']" [queryParams]="{ tab: 'playlists' }"
+        class="rounded-2xl p-5 border transition-all duration-300 hover:border-violet-500/40 hover:-translate-y-0.5 cursor-pointer group flex flex-col justify-between"
+        [ngClass]="activeTheme === 'light' 
+          ? 'bg-white border-slate-200/80 shadow-sm hover:shadow-md' 
+          : 'bg-[#0e0e11] border-white/5 hover:bg-[#121217]'">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-2xl">📁</span>
+            <span class="text-[9px] font-mono uppercase font-bold tracking-widest px-2 py-0.5 rounded-full border"
+              [ngClass]="getThemeBadgeClass()">Curation</span>
+          </div>
+          <h4 class="text-sm font-bold tracking-tight text-white group-hover:text-violet-400 transition-colors">
+            Playlist Curation
+          </h4>
+          <p class="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+            Deduplication engine and intelligent library reorganization.
+          </p>
+        </div>
+        <div class="pt-4 mt-3 flex items-center justify-between text-[11px] font-semibold text-zinc-400 group-hover:text-zinc-200 transition-colors">
+          <span>Manage Playlists</span>
+          <svg class="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Module 3: AI Features -->
+      <div [routerLink]="['/dashboard']" [queryParams]="{ tab: 'ai-studio' }"
+        class="rounded-2xl p-5 border transition-all duration-300 hover:border-violet-500/40 hover:-translate-y-0.5 cursor-pointer group flex flex-col justify-between"
+        [ngClass]="activeTheme === 'light' 
+          ? 'bg-white border-slate-200/80 shadow-sm hover:shadow-md' 
+          : 'bg-[#0e0e11] border-white/5 hover:bg-[#121217]'">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-2xl">🤖</span>
+            <span class="text-[9px] font-mono uppercase font-bold tracking-widest px-2 py-0.5 rounded-full border"
+              [ngClass]="getThemeBadgeClass()">Neural</span>
+          </div>
+          <h4 class="text-sm font-bold tracking-tight text-white group-hover:text-violet-400 transition-colors">
+            AI Features
+          </h4>
+          <p class="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+            Prompt-based mix synthesis and bespoke audio neural mapping.
+          </p>
+        </div>
+        <div class="pt-4 mt-3 flex items-center justify-between text-[11px] font-semibold text-zinc-400 group-hover:text-zinc-200 transition-colors">
+          <span>Launch AI Suite</span>
+          <svg class="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Module 4: Discovery Engine -->
+      <div [routerLink]="['/dashboard']" [queryParams]="{ tab: 'discovery' }"
+        class="rounded-2xl p-5 border transition-all duration-300 hover:border-violet-500/40 hover:-translate-y-0.5 cursor-pointer group flex flex-col justify-between"
+        [ngClass]="activeTheme === 'light' 
+          ? 'bg-white border-slate-200/80 shadow-sm hover:shadow-md' 
+          : 'bg-[#0e0e11] border-white/5 hover:bg-[#121217]'">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-2xl">⚡</span>
+            <span class="text-[9px] font-mono uppercase font-bold tracking-widest px-2 py-0.5 rounded-full border"
+              [ngClass]="getThemeBadgeClass()">Discovery</span>
+          </div>
+          <h4 class="text-sm font-bold tracking-tight text-white group-hover:text-violet-400 transition-colors">
+            Discovery Engine
+          </h4>
+          <p class="text-xs text-zinc-500 mt-1.5 leading-relaxed">
+            Dynamic slider tuning between comfortable favorites and wild new tracks.
+          </p>
+        </div>
+        <div class="pt-4 mt-3 flex items-center justify-between text-[11px] font-semibold text-zinc-400 group-hover:text-zinc-200 transition-colors">
+          <span>Tune Discovery</span>
+          <svg class="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== TAB 8: PREMIUM LAB ==================== -->
-  <div *ngIf="activeTab === 'premium-lab'" class="space-y-8">
-    <!-- Header -->
-    <div>
-      <h2 class="text-lg font-extrabold" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">Premium Laboratory Suite</h2>
-      <p class="text-xs text-zinc-500">Upcoming artificial intelligence features preview</p>
+  <!-- ========================================== -->
+  <!-- 5. RECENT ACCOUNT ACTIVITY (REAL DATA)     -->
+  <!-- ========================================== -->
+  <div class="rounded-2xl p-6 sm:p-7 border relative transition-all duration-300"
+    [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200/80 shadow-sm' : 'bg-[#0e0e11] border-white/5'">
+    
+    <div class="flex items-center justify-between border-b pb-4 mb-6"
+      [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
+      <div class="flex items-center space-x-2.5">
+        <span class="text-sm">🕒</span>
+        <h3 class="text-sm font-extrabold uppercase tracking-wider font-mono"
+          [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+          Account Lifecycle & Telemetry
+        </h3>
+      </div>
+      <span class="text-[10px] font-mono text-zinc-500 uppercase">Audit Records</span>
     </div>
 
-    <!-- Future specs cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Preview Card 1 -->
-      <div class="rounded-2xl border p-6 backdrop-blur-md space-y-4 flex flex-col justify-between transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="space-y-2">
-          <span class="text-xl">🎙️</span>
-          <h4 class="text-xs font-black uppercase tracking-wider font-mono" [class.text-slate-900]="activeTheme === 'light'">AI DJ Assistant</h4>
-          <p class="text-[11px] text-zinc-400 leading-normal">
-            A real-time artificial voice selector that comments on your transition styles, matching dynamic weather data.
-          </p>
-        </div>
-        <div class="pt-2 text-[10px] font-bold font-mono text-zinc-500 uppercase tracking-widest">
-          Coming Q4 2026
-        </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Timeline item 1: First Connected -->
+      <div class="p-4 rounded-xl border"
+        [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200/60' : 'bg-white/[0.02] border-white/5'">
+        <span class="text-[10px] font-mono uppercase text-zinc-500 tracking-wider">Account Creation Date</span>
+        <p class="text-sm font-bold font-mono mt-1 text-zinc-200">
+          {{ userProfile?.createdAt ? (userProfile.createdAt | date:'mediumDate') : 'Recently Registered' }}
+        </p>
+        <p class="text-[10px] text-zinc-500 mt-0.5">Initial MongoDB record entry</p>
       </div>
 
-      <!-- Preview Card 2 -->
-      <div class="rounded-2xl border p-6 backdrop-blur-md space-y-4 flex flex-col justify-between transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="space-y-2">
-          <span class="text-xl">🗣️</span>
-          <h4 class="text-xs font-black uppercase tracking-wider font-mono" [class.text-slate-900]="activeTheme === 'light'">Voice Search Control</h4>
-          <p class="text-[11px] text-zinc-400 leading-normal">
-            Bypass standard keystrokes. Command playlist curations, search tracks, and de-duplicate lists via natural vocal inputs.
-          </p>
-        </div>
-        <div class="pt-2 text-[10px] font-bold font-mono text-zinc-500 uppercase tracking-widest">
-          Coming Q1 2027
-        </div>
+      <!-- Timeline item 2: Last Sync -->
+      <div class="p-4 rounded-xl border"
+        [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200/60' : 'bg-white/[0.02] border-white/5'">
+        <span class="text-[10px] font-mono uppercase text-zinc-500 tracking-wider">Last Profile Sync</span>
+        <p class="text-sm font-bold font-mono mt-1 text-zinc-200">
+          {{ userProfile?.updatedAt ? (userProfile.updatedAt | date:'medium') : 'Real-time Active' }}
+        </p>
+        <p class="text-[10px] text-zinc-500 mt-0.5">Spotify token handshake check</p>
       </div>
 
-      <!-- Preview Card 3 -->
-      <div class="rounded-2xl border p-6 backdrop-blur-md space-y-4 flex flex-col justify-between transition-all duration-300"
-        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#121214]/60 border-white/5'">
-        <div class="space-y-2">
-          <span class="text-xl">🧠</span>
-          <h4 class="text-xs font-black uppercase tracking-wider font-mono" [class.text-slate-900]="activeTheme === 'light'">Personal Daily Coach</h4>
-          <p class="text-[11px] text-zinc-400 leading-normal">
-            Receive personalized advice to expand your listening diversity ratio and prevent habit loop locks.
-          </p>
-        </div>
-        <div class="pt-2 text-[10px] font-bold font-mono text-zinc-500 uppercase tracking-widest">
-          Coming Q2 2027
-        </div>
+      <!-- Timeline item 3: Session Storage Mode -->
+      <div class="p-4 rounded-xl border"
+        [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200/60' : 'bg-white/[0.02] border-white/5'">
+        <span class="text-[10px] font-mono uppercase text-zinc-500 tracking-wider">Session Key Storage</span>
+        <p class="text-sm font-bold font-mono mt-1 text-emerald-400">
+          Active Local Session
+        </p>
+        <p class="text-[10px] text-zinc-500 mt-0.5">Stored securely in client state</p>
       </div>
+
+      <!-- Timeline item 4: System ID Reference -->
+      <div class="p-4 rounded-xl border"
+        [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200/60' : 'bg-white/[0.02] border-white/5'">
+        <span class="text-[10px] font-mono uppercase text-zinc-500 tracking-wider">Spotify Account ID</span>
+        <p class="text-xs font-bold font-mono mt-1 truncate text-zinc-300" [title]="userProfile?.spotifyId">
+          {{ userProfile?.spotifyId || 'Anonymous Session' }}
+        </p>
+        <p class="text-[10px] text-zinc-500 mt-0.5">Unique external identifier</p>
+      </div>
+
     </div>
   </div>
 
