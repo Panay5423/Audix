@@ -1,5 +1,20 @@
 <app-audix-scroll-intro></app-audix-scroll-intro>
 
+<!-- Spotify Connection Error Notice -->
+<div *ngIf="errorMessage" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 max-w-xl w-[92%] px-4 animate-[fadeIn_0.3s_ease-out]">
+  <div class="rounded-2xl p-4 border border-amber-500/30 bg-[#121217]/95 backdrop-blur-xl shadow-2xl flex items-start space-x-3 text-amber-200">
+    <span class="text-xl shrink-0">⚠️</span>
+    <div class="flex-1 text-xs space-y-1">
+      <p class="font-bold text-white">Spotify Connection Notice</p>
+      <p class="leading-relaxed text-zinc-300">{{ errorMessage }}</p>
+      <p class="text-[10px] text-zinc-500 font-mono pt-1">
+        If using Spotify Developer Mode, ensure your Spotify email is added under 'User Management' in your Spotify Developer App Dashboard.
+      </p>
+    </div>
+    <button (click)="errorMessage = null" class="text-zinc-400 hover:text-white text-xs cursor-pointer p-1">✕</button>
+  </div>
+</div>
+
 <!-- Floating Glassmorphic Header -->
 <header class="sticky top-0 z-50 w-full border-b transition-all duration-300"
   style="background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-color: rgba(255,255,255,0.06);">

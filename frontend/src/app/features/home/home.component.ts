@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../cors/services/auth.service';
 import { AudixScrollIntroComponent } from './audix-scroll-intro/audix-scroll-intro.component';
 
@@ -40,7 +40,12 @@ interface MockTrack {
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  constructor(private authservice: AuthService,) { }
+  errorMessage: string | null = null;
+
+  constructor(
+    private authservice: AuthService,
+    private route: ActivatedRoute
+  ) { }
   // Navigation active tab
   activeSection = 'hero';
 
@@ -123,6 +128,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   Spotify_auth_URl: string = "";
   ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      if (params['error']) {
+        this.errorMessage = decodeURIComponent(params['error']);
+      }
+    });
+
     this.updateRecommendations();
     // Simulate player progress ticking if active
     this.playerInterval = setInterval(() => {

@@ -26,11 +26,17 @@ export const refreshSpotifyToken = async (user) => {
             })
         });
 
-        const data = await response.json();
+        const text = await response.text();
+        let data = null;
+        try {
+            data = JSON.parse(text);
+        } catch {
+            throw new Error(text || `Token refresh failed with HTTP status ${response.status}`);
+        }
 
         if (!response.ok || !data.access_token) {
-            console.error("Spotify token refresh failed:", data);
-            throw new Error(data.error_description || data.error || "Failed to refresh Spotify token");
+            console.error("Spotify token refresh failed:", data || text);
+            throw new Error(data?.error_description || data?.error || text || "Failed to refresh Spotify token");
         }
 
         user.spotifyAccessToken = data.access_token;
