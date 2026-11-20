@@ -1,0 +1,141 @@
+<div class="space-y-8 animate-[fadeIn_0.3s_ease-out]">
+  <!-- Search Input Bar -->
+  <div class="relative max-w-2xl mx-auto">
+    <input type="text"
+      [(ngModel)]="query"
+      (keyup.enter)="onSearch()"
+      placeholder="Search millions of songs, artists, albums, or playlists..."
+      class="w-full pl-12 pr-28 py-3.5 rounded-2xl text-sm font-semibold border transition-all duration-200 outline-none shadow-xl"
+      [ngClass]="activeTheme === 'light' 
+        ? 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20' 
+        : 'bg-[#0e0e12] border-white/10 text-white placeholder-zinc-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'">
+    <svg class="h-5 w-5 text-zinc-500 absolute left-4 top-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    </svg>
+    <button (click)="onSearch()"
+      class="absolute right-2 top-2 px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-md"
+      [ngClass]="getThemeBgClass()">
+      Search
+    </button>
+  </div>
+
+  <!-- Filter Category Pills -->
+  <div *ngIf="hasSearched" class="flex items-center justify-center space-x-2 overflow-x-auto pb-2">
+    <button *ngFor="let tab of ['all', 'tracks', 'artists', 'albums', 'playlists']"
+      (click)="activeFilter = $any(tab)"
+      class="px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer border"
+      [ngClass]="activeFilter === tab 
+        ? (activeTheme === 'purple' ? 'bg-violet-600/20 text-violet-400 border-violet-500/40' : (activeTheme === 'spotify' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-indigo-600/20 text-indigo-600 border-indigo-500/40')) 
+        : (activeTheme === 'light' ? 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200' : 'bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10')">
+      {{ tab }}
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex flex-col items-center justify-center min-h-[300px] space-y-4">
+    <div class="h-10 w-10 border-4 border-t-transparent rounded-full animate-spin"
+      [ngClass]="activeTheme === 'spotify' ? 'border-emerald-500' : (activeTheme === 'light' ? 'border-indigo-600' : 'border-violet-500')"></div>
+    <p class="text-zinc-500 text-xs font-mono font-semibold">Scanning Spotify Audio Spectrum...</p>
+  </div>
+
+  <!-- Empty Initial State -->
+  <div *ngIf="!hasSearched && !loading" class="text-center py-16 space-y-3">
+    <div class="text-4xl">🔍</div>
+    <h3 class="text-lg font-bold" [ngClass]="activeTheme === 'light' ? 'text-slate-800' : 'text-zinc-200'">
+      Explore the Audix Music Library
+    </h3>
+    <p class="text-xs text-zinc-500 max-w-sm mx-auto">
+      Type an artist name, song title, or genre above to instantly query Spotify's complete API database.
+    </p>
+  </div>
+
+  <!-- Results View -->
+  <div *ngIf="hasSearched && !loading" class="space-y-10">
+
+    <!-- Tracks Section -->
+    <div *ngIf="(activeFilter === 'all' || activeFilter === 'tracks') && tracks.length > 0" class="space-y-3">
+      <h3 class="text-base font-bold tracking-tight font-mono uppercase" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+        Songs ({{ tracks.length }})
+      </h3>
+      <div class="space-y-1">
+        <div *ngFor="let track of (activeFilter === 'all' ? (tracks | slice:0:6) : tracks); let i = index"
+          class="flex items-center justify-between p-2.5 rounded-xl border transition-all duration-150 group cursor-pointer"
+          [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200/80 hover:bg-slate-50' : 'bg-[#0e0e11] border-white/5 hover:bg-white/5'">
+          
+          <div class="flex items-center space-x-3 overflow-hidden flex-1" (click)="playTrack(track)">
+            <span class="w-6 text-center text-xs font-mono text-zinc-500 group-hover:hidden">{{ i + 1 }}</span>
+            <button class="w-6 text-center hidden group-hover:flex items-center justify-center text-xs" [ngClass]="getThemeTextClass()">
+              ▶
+            </button>
+            <img [src]="track.album?.images?.[0]?.url" [alt]="track.name" class="h-10 w-10 rounded-lg object-cover shrink-0">
+            <div class="overflow-hidden pr-2">
+              <h4 class="text-xs font-bold truncate group-hover:underline" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+                {{ track.name }}
+              </h4>
+              <p class="text-[11px] text-zinc-500 truncate">
+                {{ track.artists?.[0]?.name }} • {{ track.album?.name }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-4 shrink-0 text-xs font-mono text-zinc-500">
+            <span>{{ formatTime(track.duration_ms) }}</span>
+            <button (click)="playTrack(track)" title="Play"
+              class="h-8 w-8 rounded-full flex items-center justify-center transition-all active:scale-95 shadow"
+              [ngClass]="getThemeBgClass()">
+              <svg class="h-4 w-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Artists Section -->
+    <div *ngIf="(activeFilter === 'all' || activeFilter === 'artists') && artists.length > 0" class="space-y-3">
+      <h3 class="text-base font-bold tracking-tight font-mono uppercase" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+        Artists
+      </h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div *ngFor="let artist of (activeFilter === 'all' ? (artists | slice:0:6) : artists)"
+          [routerLink]="['/artist', artist.id]"
+          class="rounded-2xl p-4 border text-center transition-all duration-200 hover:-translate-y-1 cursor-pointer group flex flex-col items-center"
+          [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200/80 shadow-sm' : 'bg-[#0e0e11] border-white/5 hover:border-violet-500/30'">
+          <div class="h-24 w-24 rounded-full overflow-hidden mb-3 border shadow-md"
+            [ngClass]="activeTheme === 'light' ? 'border-slate-200' : 'border-white/10'">
+            <img *ngIf="artist.images?.[0]?.url" [src]="artist.images[0].url" [alt]="artist.name" class="h-full w-full object-cover group-hover:scale-105 transition-transform">
+            <div *ngIf="!artist.images?.[0]?.url" class="h-full w-full flex items-center justify-center bg-zinc-800 text-xl">👤</div>
+          </div>
+          <h4 class="text-xs font-bold truncate max-w-full" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+            {{ artist.name }}
+          </h4>
+          <p class="text-[10px] text-zinc-500 font-mono mt-0.5">Artist</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Albums Section -->
+    <div *ngIf="(activeFilter === 'all' || activeFilter === 'albums') && albums.length > 0" class="space-y-3">
+      <h3 class="text-base font-bold tracking-tight font-mono uppercase" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+        Albums
+      </h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div *ngFor="let album of (activeFilter === 'all' ? (albums | slice:0:5) : albums)"
+          [routerLink]="['/album', album.id]"
+          class="rounded-2xl p-3.5 border transition-all duration-200 hover:-translate-y-1 cursor-pointer group"
+          [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200/80 shadow-sm' : 'bg-[#0e0e11] border-white/5 hover:border-violet-500/30'">
+          <div class="aspect-square rounded-xl overflow-hidden mb-3 border"
+            [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
+            <img [src]="album.images?.[0]?.url" [alt]="album.name" class="h-full w-full object-cover group-hover:scale-105 transition-transform">
+          </div>
+          <h4 class="text-xs font-bold truncate" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+            {{ album.name }}
+          </h4>
+          <p class="text-[11px] text-zinc-500 truncate mt-0.5">
+            {{ album.artists?.[0]?.name }} • {{ album.release_date | slice:0:4 }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

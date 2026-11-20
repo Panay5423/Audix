@@ -1,0 +1,128 @@
+<div class="space-y-10 animate-[fadeIn_0.3s_ease-out]">
+  <!-- Hero Banner -->
+  <div class="rounded-3xl p-8 relative overflow-hidden border shadow-2xl transition-all duration-300"
+    [ngClass]="activeTheme === 'light' ? 'bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border-slate-200' : 'bg-gradient-to-r from-violet-950/40 via-black to-[#0e0e14] border-white/10'">
+    <div class="max-w-2xl space-y-3 relative z-10">
+      <span class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest font-bold border"
+        [ngClass]="activeTheme === 'spotify' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : (activeTheme === 'light' ? 'bg-indigo-50 text-indigo-600 border-indigo-200' : 'bg-violet-500/10 text-violet-400 border-violet-500/20')">
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Spotify Sonic Catalog</span>
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-black tracking-tight" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+        Music Discovery Engine
+      </h2>
+      <p class="text-xs sm:text-sm text-zinc-400 leading-relaxed font-medium">
+        Uncover fresh sonic landscapes, new album drops, trending Spotify playlists, and curated acoustic categories tailored to expand your taste horizon.
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex flex-col items-center justify-center min-h-[300px] space-y-4">
+    <div class="h-10 w-10 border-4 border-t-transparent rounded-full animate-spin"
+      [ngClass]="activeTheme === 'spotify' ? 'border-emerald-500' : (activeTheme === 'light' ? 'border-indigo-600' : 'border-violet-500')"></div>
+    <p class="text-zinc-500 text-xs font-mono font-bold tracking-wider">Syncing global Spotify releases...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="p-6 rounded-2xl border border-red-500/20 bg-red-500/5 text-center space-y-3">
+    <p class="text-sm font-semibold text-red-400">{{ error }}</p>
+    <button (click)="loadDiscoveryData()" class="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white cursor-pointer">
+      Retry
+    </button>
+  </div>
+
+  <div *ngIf="!loading && !error" class="space-y-12">
+    <!-- 1. Featured Playlists -->
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold tracking-tight" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+            Featured Playlists
+          </h3>
+          <p class="text-xs text-zinc-500">Hand-curated mixes refreshed directly from Spotify's editorial staff</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div *ngFor="let playlist of featuredPlaylists"
+          [routerLink]="['/playlist', playlist.id]"
+          class="group rounded-2xl p-3.5 border transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+          [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200/80 shadow-sm hover:shadow-md' : 'bg-[#0e0e11] border-white/5 hover:border-violet-500/30'">
+          <div class="relative aspect-square rounded-xl overflow-hidden mb-3 border"
+            [ngClass]="activeTheme === 'light' ? 'border-slate-100 bg-slate-100' : 'border-white/5 bg-zinc-900'">
+            <img [src]="playlist.images?.[0]?.url" [alt]="playlist.name" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span class="h-10 w-10 rounded-full flex items-center justify-center shadow-lg" [ngClass]="getThemeBgClass()">
+                <svg class="h-5 w-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            </div>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold truncate" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'" [title]="playlist.name">
+              {{ playlist.name }}
+            </h4>
+            <p class="text-[11px] text-zinc-500 line-clamp-1 mt-0.5">
+              {{ playlist.description || 'Spotify Editorial' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. New Releases -->
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold tracking-tight" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+            New Album Drops
+          </h3>
+          <p class="text-xs text-zinc-500">Fresh records and singles hitting the airwaves right now</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div *ngFor="let album of newReleases"
+          [routerLink]="['/album', album.id]"
+          class="group rounded-2xl p-3.5 border transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+          [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200/80 shadow-sm hover:shadow-md' : 'bg-[#0e0e11] border-white/5 hover:border-violet-500/30'">
+          <div class="relative aspect-square rounded-xl overflow-hidden mb-3 border"
+            [ngClass]="activeTheme === 'light' ? 'border-slate-100 bg-slate-100' : 'border-white/5 bg-zinc-900'">
+            <img [src]="album.images?.[0]?.url" [alt]="album.name" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300">
+          </div>
+          <div>
+            <h4 class="text-xs font-bold truncate" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'" [title]="album.name">
+              {{ album.name }}
+            </h4>
+            <p class="text-[11px] text-zinc-500 truncate mt-0.5">
+              {{ album.artists?.[0]?.name }} • {{ album.release_date | slice:0:4 }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Browse Categories -->
+    <div class="space-y-4">
+      <div>
+        <h3 class="text-lg font-bold tracking-tight" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+          Genres & Mood Matrices
+        </h3>
+        <p class="text-xs text-zinc-500">Explore specific acoustic genres and thematic moods</p>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div *ngFor="let cat of categories"
+          [routerLink]="['/search']" [queryParams]="{ q: cat.name }"
+          class="relative h-28 rounded-2xl p-4 overflow-hidden border transition-all duration-200 hover:scale-102 cursor-pointer flex flex-col justify-between group shadow-sm"
+          [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200' : 'bg-gradient-to-br from-[#121217] to-[#1c1c24] border-white/5'">
+          <span class="text-xs font-black tracking-wide z-10" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+            {{ cat.name }}
+          </span>
+          <img *ngIf="cat.icons?.[0]?.url" [src]="cat.icons[0].url" [alt]="cat.name"
+            class="absolute -bottom-2 -right-2 h-16 w-16 rotate-12 rounded-lg shadow-md group-hover:scale-110 transition-transform">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

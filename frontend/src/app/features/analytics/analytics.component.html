@@ -1,0 +1,240 @@
+<div class="space-y-8 animate-[fadeIn_0.3s_ease-out]">
+  <!-- Header & Time Filter -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-6"
+    [ngClass]="activeTheme === 'light' ? 'border-slate-200' : 'border-white/5'">
+    <div>
+      <h2 class="text-2xl sm:text-3xl font-black tracking-tight" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+        Music Analytics & Sonic Telemetry
+      </h2>
+      <p class="text-xs sm:text-sm text-zinc-400 mt-1">
+        Deep metrics calculated directly from your actual Spotify listening history.
+      </p>
+    </div>
+
+    <!-- Time Range Tabs -->
+    <div class="flex items-center space-x-1.5 p-1 rounded-2xl border"
+      [ngClass]="activeTheme === 'light' ? 'bg-slate-100 border-slate-200' : 'bg-[#121216] border-white/5'">
+      <button (click)="setTimeRange('short_term')"
+        class="px-3 py-1.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer"
+        [ngClass]="timeRange === 'short_term' ? (activeTheme === 'spotify' ? 'bg-emerald-500 text-black shadow' : (activeTheme === 'light' ? 'bg-white text-indigo-600 shadow' : 'bg-violet-600 text-white shadow')) : 'text-zinc-500 hover:text-white'">
+        4 Weeks
+      </button>
+      <button (click)="setTimeRange('medium_term')"
+        class="px-3 py-1.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer"
+        [ngClass]="timeRange === 'medium_term' ? (activeTheme === 'spotify' ? 'bg-emerald-500 text-black shadow' : (activeTheme === 'light' ? 'bg-white text-indigo-600 shadow' : 'bg-violet-600 text-white shadow')) : 'text-zinc-500 hover:text-white'">
+        6 Months
+      </button>
+      <button (click)="setTimeRange('long_term')"
+        class="px-3 py-1.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer"
+        [ngClass]="timeRange === 'long_term' ? (activeTheme === 'spotify' ? 'bg-emerald-500 text-black shadow' : (activeTheme === 'light' ? 'bg-white text-indigo-600 shadow' : 'bg-violet-600 text-white shadow')) : 'text-zinc-500 hover:text-white'">
+        All Time
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex flex-col items-center justify-center min-h-[350px] space-y-4">
+    <div class="h-10 w-10 border-4 border-t-transparent rounded-full animate-spin"
+      [ngClass]="activeTheme === 'spotify' ? 'border-emerald-500' : (activeTheme === 'light' ? 'border-indigo-600' : 'border-violet-500')"></div>
+    <p class="text-zinc-500 text-xs font-mono font-semibold">Computing Acoustic Vectors & Histograms...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="p-6 rounded-2xl border border-red-500/20 bg-red-500/5 text-center space-y-3">
+    <p class="text-sm font-semibold text-red-400">{{ error }}</p>
+    <button (click)="loadAnalytics()" class="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white cursor-pointer">
+      Retry
+    </button>
+  </div>
+
+  <!-- Analytics Dashboard Content -->
+  <div *ngIf="!loading && !error && analytics" class="space-y-8">
+    
+    <!-- KPI Metrics Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+      <!-- Card 1: Popularity -->
+      <div class="rounded-2xl p-4 border flex flex-col justify-between"
+        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/5'">
+        <span class="text-[9px] font-mono uppercase font-bold text-zinc-500">Popularity</span>
+        <div class="text-2xl font-black font-mono mt-2" [ngClass]="getThemeTextClass()">
+          {{ analytics.avgPopularity }}/100
+        </div>
+        <p class="text-[10px] text-zinc-500 mt-1">Mainstream index</p>
+      </div>
+
+      <!-- Card 2: Obscurity -->
+      <div class="rounded-2xl p-4 border flex flex-col justify-between"
+        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/5'">
+        <span class="text-[9px] font-mono uppercase font-bold text-zinc-500">Obscurity / Deep Cut</span>
+        <div class="text-2xl font-black font-mono mt-2 text-amber-400">
+          {{ analytics.obscurityScore }}%
+        </div>
+        <p class="text-[10px] text-zinc-500 mt-1">Underground bias</p>
+      </div>
+
+      <!-- Card 3: Repeat Rate -->
+      <div class="rounded-2xl p-4 border flex flex-col justify-between"
+        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/5'">
+        <span class="text-[9px] font-mono uppercase font-bold text-zinc-500">Loop Repetition</span>
+        <div class="text-2xl font-black font-mono mt-2 text-cyan-400">
+          {{ analytics.repeatRatePercentage }}%
+        </div>
+        <p class="text-[10px] text-zinc-500 mt-1">Recent track replays</p>
+      </div>
+
+      <!-- Card 4: Top Tracks Sampled -->
+      <div class="rounded-2xl p-4 border flex flex-col justify-between"
+        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/5'">
+        <span class="text-[9px] font-mono uppercase font-bold text-zinc-500">Sampled Tracks</span>
+        <div class="text-2xl font-black font-mono mt-2 text-white">
+          {{ analytics.totalTracksAnalyzed }}
+        </div>
+        <p class="text-[10px] text-zinc-500 mt-1">In period scope</p>
+      </div>
+
+      <!-- Card 5: Saved Library Tracks -->
+      <div class="rounded-2xl p-4 border flex flex-col justify-between"
+        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/5'">
+        <span class="text-[9px] font-mono uppercase font-bold text-zinc-500">Library Songs</span>
+        <div class="text-2xl font-black font-mono mt-2 text-emerald-400">
+          {{ analytics.totalSavedTracks }}
+        </div>
+        <p class="text-[10px] text-zinc-500 mt-1">Saved tracks</p>
+      </div>
+
+      <!-- Card 6: Playlists -->
+      <div class="rounded-2xl p-4 border flex flex-col justify-between"
+        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/5'">
+        <span class="text-[9px] font-mono uppercase font-bold text-zinc-500">Playlists</span>
+        <div class="text-2xl font-black font-mono mt-2 text-violet-400">
+          {{ analytics.totalPlaylists }}
+        </div>
+        <p class="text-[10px] text-zinc-500 mt-1">User library</p>
+      </div>
+    </div>
+
+    <!-- Charts / Breakdown Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Top Genres Breakdown Bar Chart -->
+      <div class="rounded-3xl p-6 border shadow-xl space-y-4"
+        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/5'">
+        <div class="flex items-center justify-between border-b pb-3" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
+          <h3 class="text-xs font-mono font-bold uppercase tracking-wider" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+            Top Acoustic Genres
+          </h3>
+          <span class="text-[10px] font-mono text-zinc-500">Frequency Analysis</span>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <div *ngFor="let g of analytics.topGenres" class="space-y-1">
+            <div class="flex items-center justify-between text-xs font-semibold">
+              <span class="capitalize" [ngClass]="activeTheme === 'light' ? 'text-slate-800' : 'text-zinc-200'">{{ g.name }}</span>
+              <span class="font-mono text-zinc-500 text-[11px]">{{ g.percentage }}%</span>
+            </div>
+            <div class="h-2 rounded-full overflow-hidden bg-white/5">
+              <div class="h-full rounded-full transition-all duration-500"
+                [style.width.%]="g.percentage"
+                [ngClass]="getThemeProgressBarClass()"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decades Era Spectrum -->
+      <div class="rounded-3xl p-6 border shadow-xl space-y-4"
+        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/5'">
+        <div class="flex items-center justify-between border-b pb-3" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
+          <h3 class="text-xs font-mono font-bold uppercase tracking-wider" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+            Release Decade Distribution
+          </h3>
+          <span class="text-[10px] font-mono text-zinc-500">Album Vintage</span>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <div *ngFor="let d of analytics.decades" class="space-y-1">
+            <div class="flex items-center justify-between text-xs font-semibold">
+              <span class="font-mono text-zinc-300">{{ d.decade }}</span>
+              <span class="font-mono text-zinc-500 text-[11px]">{{ d.count }} tracks ({{ d.percentage }}%)</span>
+            </div>
+            <div class="h-2 rounded-full overflow-hidden bg-white/5">
+              <div class="h-full rounded-full transition-all duration-500 bg-cyan-500"
+                [style.width.%]="d.percentage"></div>
+            </div>
+          </div>
+
+          <!-- Mainstream vs Underground Ratio -->
+          <div class="pt-4 mt-4 border-t space-y-2" [ngClass]="activeTheme === 'light' ? 'border-slate-100' : 'border-white/5'">
+            <span class="text-[10px] font-mono uppercase text-zinc-500">Popularity Tiers</span>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
+              <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5">
+                <p class="font-bold text-emerald-400">{{ analytics.popularityTiers.mainstream }}</p>
+                <p class="text-[9px] text-zinc-500">Mainstream (70+)</p>
+              </div>
+              <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5">
+                <p class="font-bold text-amber-400">{{ analytics.popularityTiers.midTier }}</p>
+                <p class="text-[9px] text-zinc-500">Mid-tier (40-69)</p>
+              </div>
+              <div class="p-2 rounded-xl bg-white/[0.02] border border-white/5">
+                <p class="font-bold text-violet-400">{{ analytics.popularityTiers.underground }}</p>
+                <p class="text-[9px] text-zinc-500">Deep Cuts (&lt;40)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Top Artists & Tracks Showcase -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Top Artists -->
+      <div class="space-y-3">
+        <h3 class="text-sm font-bold font-mono uppercase tracking-wider" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+          Anchor Artists in this Scope
+        </h3>
+        <div class="space-y-1">
+          <div *ngFor="let artist of analytics.topArtistsPreview; let i = index"
+            [routerLink]="['/artist', artist.id]"
+            class="flex items-center justify-between p-2.5 rounded-xl border transition-all duration-150 cursor-pointer"
+            [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 hover:bg-slate-50' : 'bg-[#0e0e11] border-white/5 hover:bg-white/5'">
+            <div class="flex items-center space-x-3 overflow-hidden">
+              <span class="w-6 text-center text-xs font-mono text-zinc-500">{{ i + 1 }}</span>
+              <img *ngIf="artist.image" [src]="artist.image" class="h-9 w-9 rounded-full object-cover">
+              <div class="overflow-hidden">
+                <h4 class="text-xs font-bold truncate" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">{{ artist.name }}</h4>
+                <p class="text-[10px] text-zinc-500 font-mono">{{ (artist.followers || 0) | number }} followers</p>
+              </div>
+            </div>
+            <span class="text-[11px] font-mono text-zinc-400">{{ artist.popularity }} pop</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Tracks -->
+      <div class="space-y-3">
+        <h3 class="text-sm font-bold font-mono uppercase tracking-wider" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+          Peak Velocity Tracks
+        </h3>
+        <div class="space-y-1">
+          <div *ngFor="let track of analytics.topTracksPreview; let i = index"
+            (click)="playTrack(track)"
+            class="flex items-center justify-between p-2.5 rounded-xl border transition-all duration-150 group cursor-pointer"
+            [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200 hover:bg-slate-50' : 'bg-[#0e0e11] border-white/5 hover:bg-white/5'">
+            <div class="flex items-center space-x-3 overflow-hidden flex-1">
+              <span class="w-6 text-center text-xs font-mono text-zinc-500 group-hover:hidden">{{ i + 1 }}</span>
+              <button class="w-6 text-center hidden group-hover:flex items-center justify-center text-xs" [ngClass]="getThemeTextClass()">▶</button>
+              <img *ngIf="track.image" [src]="track.image" class="h-9 w-9 rounded-lg object-cover">
+              <div class="overflow-hidden pr-2">
+                <h4 class="text-xs font-bold truncate group-hover:underline" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">{{ track.name }}</h4>
+                <p class="text-[10px] text-zinc-500 truncate">{{ track.artist }}</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono text-zinc-500">{{ formatTime(track.durationMs) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

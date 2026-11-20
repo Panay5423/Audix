@@ -4,7 +4,8 @@ const userSchema = new mongoose.Schema({
     spotifyId: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        index: true
     },
     account_id: {
         type: String,
@@ -23,7 +24,7 @@ const userSchema = new mongoose.Schema({
     },
     followers: {
         href: String,
-        total: Number
+        total: { type: Number, default: 0 }
     },
     href: String,
     images: [{
@@ -31,16 +32,28 @@ const userSchema = new mongoose.Schema({
         height: Number,
         width: Number
     }],
-    product: String,
-    type: String,
+    product: {
+        type: String,
+        default: 'free'
+    },
+    type: {
+        type: String,
+        default: 'user'
+    },
     uri: String,
 
     spotifyAccessToken: String,
     spotifyRefreshToken: String,
-    JWT_token: String
+    spotifyTokenExpiresAt: Date,
+    JWT_token: String,
 
+    preferences: {
+        preferredTheme: { type: String, default: 'purple' },
+        autoPlayRecommendations: { type: Boolean, default: false },
+        discoveryDegree: { type: Number, default: 50 } // 0 = comfort, 100 = wild discovery
+    }
 }, {
     timestamps: true
 });
 
-export default mongoose.model("User", userSchema);
+export default mongoose.models.User || mongoose.model("User", userSchema);

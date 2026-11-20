@@ -1,0 +1,91 @@
+<div *ngIf="loading" class="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+  <div class="h-10 w-10 border-4 border-t-transparent rounded-full animate-spin"
+    [ngClass]="activeTheme === 'spotify' ? 'border-emerald-500' : (activeTheme === 'light' ? 'border-indigo-600' : 'border-violet-500')"></div>
+  <p class="text-zinc-500 text-xs font-mono font-semibold">Loading Album Master...</p>
+</div>
+
+<div *ngIf="error && !loading" class="p-6 rounded-2xl border border-red-500/20 bg-red-500/5 text-center space-y-3">
+  <p class="text-sm font-semibold text-red-400">{{ error }}</p>
+  <button (click)="loadAlbum(albumId!)" class="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white cursor-pointer">
+    Retry
+  </button>
+</div>
+
+<div *ngIf="!loading && !error && album" class="space-y-10 animate-[fadeIn_0.3s_ease-out]">
+  <!-- Album Header -->
+  <div class="rounded-3xl p-8 border shadow-2xl transition-all duration-300 flex flex-col sm:flex-row items-center sm:items-end gap-6"
+    [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/10'">
+    
+    <div class="h-44 w-44 sm:h-52 sm:w-52 rounded-2xl overflow-hidden shrink-0 border shadow-2xl"
+      [ngClass]="activeTheme === 'light' ? 'border-slate-200' : 'border-white/10'">
+      <img [src]="album.images?.[0]?.url" [alt]="album.name" class="h-full w-full object-cover">
+    </div>
+
+    <div class="space-y-2 text-center sm:text-left flex-1">
+      <span class="text-[10px] font-mono uppercase tracking-widest text-zinc-500 font-bold">
+        {{ album.album_type }} • {{ album.release_date | slice:0:4 }}
+      </span>
+      <h2 class="text-2xl sm:text-4xl font-black tracking-tight" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+        {{ album.name }}
+      </h2>
+      <p class="text-sm font-semibold" [ngClass]="getThemeTextClass()">
+        By <a *ngIf="album.artists?.[0]?.id" [routerLink]="['/artist', album.artists[0].id]" class="hover:underline">{{ album.artists?.[0]?.name }}</a>
+      </p>
+      <p class="text-xs text-zinc-500 font-mono">
+        {{ album.total_tracks }} songs • Released {{ album.release_date | date:'longDate' }}
+      </p>
+    </div>
+
+    <div *ngIf="tracks.length > 0" class="shrink-0">
+      <button (click)="playTrack(tracks[0])"
+        class="px-6 py-3 rounded-full text-xs font-bold transition-all active:scale-95 shadow-xl flex items-center space-x-2 cursor-pointer"
+        [ngClass]="getThemeBgClass()">
+        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <span>Play Album</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tracklist -->
+  <div class="space-y-3">
+    <div class="flex items-center justify-between px-3 text-[10px] font-mono uppercase tracking-widest text-zinc-500 border-b pb-2"
+      [ngClass]="activeTheme === 'light' ? 'border-slate-200' : 'border-white/5'">
+      <span class="w-8">#</span>
+      <span class="flex-1">Title</span>
+      <span>Duration</span>
+    </div>
+
+    <div class="space-y-1">
+      <div *ngFor="let track of tracks; let i = index"
+        (click)="playTrack(track)"
+        class="flex items-center justify-between p-3 rounded-xl border transition-all duration-150 group cursor-pointer"
+        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200/80 hover:bg-slate-50' : 'bg-[#0e0e11] border-white/5 hover:bg-white/5'">
+        
+        <div class="flex items-center space-x-3 overflow-hidden flex-1">
+          <span class="w-8 text-center text-xs font-mono text-zinc-500 group-hover:hidden">{{ track.track_number || (i + 1) }}</span>
+          <button class="w-8 text-center hidden group-hover:flex items-center justify-center text-xs" [ngClass]="getThemeTextClass()">
+            ▶
+          </button>
+          <div class="overflow-hidden pr-2">
+            <h4 class="text-xs font-bold truncate group-hover:underline" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+              {{ track.name }}
+            </h4>
+            <p class="text-[11px] text-zinc-500 truncate">
+              {{ track.artists?.[0]?.name || album.artists?.[0]?.name }}
+            </p>
+          </div>
+        </div>
+
+        <div class="shrink-0 text-xs font-mono text-zinc-500">
+          {{ formatTime(track.duration_ms) }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Copyright & Label -->
+  <div class="text-[10px] font-mono text-zinc-500 space-y-1 pt-4 border-t" [ngClass]="activeTheme === 'light' ? 'border-slate-200' : 'border-white/5'">
+    <p>{{ album.label }}</p>
+    <p *ngFor="let c of album.copyrights">{{ c.text }}</p>
+  </div>
+</div>

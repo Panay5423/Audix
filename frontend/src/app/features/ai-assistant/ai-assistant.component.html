@@ -1,0 +1,148 @@
+<div class="h-[calc(100vh-12rem)] flex flex-col rounded-3xl border shadow-2xl overflow-hidden relative"
+  [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0a0a0d] border-white/10'">
+
+  <!-- Top Assistant Header -->
+  <div class="px-6 py-4 border-b flex items-center justify-between z-10 shrink-0"
+    [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200' : 'bg-[#101015]/80 backdrop-blur-md border-white/5'">
+    <div class="flex items-center space-x-3">
+      <div class="h-9 w-9 rounded-xl flex items-center justify-center border shadow"
+        [ngClass]="activeTheme === 'spotify' 
+          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+          : (activeTheme === 'light' ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-violet-500/10 border-violet-500/30 text-violet-400')">
+        🤖
+      </div>
+      <div>
+        <h3 class="text-xs font-bold font-mono uppercase tracking-wider" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+          Audix Neural Music Assistant
+        </h3>
+        <p class="text-[10px] text-zinc-500 font-mono">Real-time Spotify Context Aware</p>
+      </div>
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="text-[10px] font-mono uppercase tracking-widest text-zinc-400">LLM Active</span>
+    </div>
+  </div>
+
+  <!-- Messages Scroll Area -->
+  <div #scrollContainer class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 scrollbar-thin">
+    <!-- Suggested Prompts Pills (if conversation is short) -->
+    <div *ngIf="messages.length <= 2" class="space-y-2 mb-4">
+      <span class="text-[10px] font-mono uppercase tracking-wider text-zinc-500">Suggested Inquiries</span>
+      <div class="flex flex-wrap gap-2">
+        <button *ngFor="let p of suggestedPrompts"
+          (click)="send(p)"
+          class="px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 active:scale-95 cursor-pointer text-left"
+          [ngClass]="activeTheme === 'light' 
+            ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700' 
+            : 'bg-white/5 hover:bg-white/10 border-white/10 text-zinc-300'">
+          {{ p }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div *ngFor="let msg of messages" class="space-y-3">
+      <!-- User message -->
+      <div *ngIf="msg.role === 'user'" class="flex justify-end">
+        <div class="max-w-xl rounded-2xl px-4 py-3 text-xs font-medium leading-relaxed shadow-md border"
+          [ngClass]="activeTheme === 'spotify' 
+            ? 'bg-emerald-900/30 border-emerald-500/30 text-emerald-100' 
+            : (activeTheme === 'light' ? 'bg-indigo-600 text-white border-transparent' : 'bg-violet-900/40 border-violet-500/30 text-violet-100')">
+          {{ msg.content }}
+        </div>
+      </div>
+
+      <!-- Assistant message -->
+      <div *ngIf="msg.role === 'assistant'" class="flex items-start space-x-3 max-w-2xl">
+        <div class="h-7 w-7 rounded-lg flex items-center justify-center shrink-0 text-xs border"
+          [ngClass]="activeTheme === 'light' ? 'bg-slate-200 border-slate-300' : 'bg-white/5 border-white/10'">
+          🤖
+        </div>
+        <div class="space-y-3 flex-1 overflow-hidden">
+          <div class="rounded-2xl p-4 text-xs font-medium leading-relaxed whitespace-pre-wrap border shadow-sm"
+            [ngClass]="activeTheme === 'light' ? 'bg-slate-50 border-slate-200 text-slate-800' : 'bg-[#121217] border-white/5 text-zinc-200'">
+            {{ msg.content }}
+          </div>
+
+          <!-- Verified Recommendation Track Cards -->
+          <div *ngIf="msg.recommendedTracks && msg.recommendedTracks.length > 0" class="space-y-2 pt-1">
+            <span class="text-[10px] font-mono uppercase font-bold tracking-widest text-zinc-500">Verified Spotify Tracks</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div *ngFor="let track of msg.recommendedTracks"
+                class="flex items-center justify-between p-2.5 rounded-xl border transition-all duration-150 group"
+                [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-black/40 border-white/10'">
+                <div class="flex items-center space-x-2.5 overflow-hidden flex-1 cursor-pointer" (click)="playTrack(track)">
+                  <img *ngIf="track.albumCover" [src]="track.albumCover" class="h-9 w-9 rounded-lg object-cover shrink-0">
+                  <div class="truncate pr-2">
+                    <h5 class="text-xs font-bold truncate group-hover:underline" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+                      {{ track.name }}
+                    </h5>
+                    <p class="text-[10px] text-zinc-400 truncate">
+                      {{ track.artists.join(', ') }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-center space-x-2 shrink-0">
+                  <button (click)="playTrack(track)" title="Play Track"
+                    class="h-7 w-7 rounded-full flex items-center justify-center shadow text-xs cursor-pointer"
+                    [ngClass]="getThemeBgClass()">
+                    ▶
+                  </button>
+                  <a *ngIf="track.spotifyUrl" [href]="track.spotifyUrl" target="_blank" rel="noopener noreferrer" title="Open on Spotify"
+                    class="text-zinc-500 hover:text-emerald-400 p-1">
+                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.494 17.306c-.215.353-.674.464-1.026.248-2.812-1.718-6.352-2.107-10.523-1.154-.403.093-.807-.156-.9-.559-.093-.404.156-.807.56-.9 4.568-1.044 8.49-.607 11.64 1.338.353.216.464.674.249 1.027zm1.465-3.26c-.27.44-.848.578-1.288.308-3.219-1.978-8.127-2.55-11.935-1.393-.497.15-1.022-.134-1.173-.63-.151-.496.134-1.022.63-1.173 4.356-1.322 9.775-.683 13.458 1.58.44.27.578.847.308 1.288zm.126-3.41c-3.86-2.292-10.228-2.503-13.896-1.39-.59.18-1.218-.16-1.397-.751-.18-.59.16-1.218.751-1.397 4.218-1.28 11.246-1.037 15.688 1.597.533.316.708 1.01.392 1.543-.316.533-1.01.708-1.543.392z"/></svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Thinking indicator -->
+    <div *ngIf="sending" class="flex items-center space-x-3 max-w-sm">
+      <div class="h-7 w-7 rounded-lg flex items-center justify-center text-xs border"
+        [ngClass]="activeTheme === 'light' ? 'bg-slate-200 border-slate-300' : 'bg-white/5 border-white/10'">
+        🤖
+      </div>
+      <div class="p-3 rounded-2xl border flex items-center space-x-2"
+        [ngClass]="activeTheme === 'light' ? 'bg-slate-100 border-slate-200' : 'bg-[#121217] border-white/5'">
+        <span class="h-2 w-2 rounded-full animate-bounce" [ngClass]="getThemeBgClass()"></span>
+        <span class="h-2 w-2 rounded-full animate-bounce [animation-delay:0.2s]" [ngClass]="getThemeBgClass()"></span>
+        <span class="h-2 w-2 rounded-full animate-bounce [animation-delay:0.4s]" [ngClass]="getThemeBgClass()"></span>
+        <span class="text-[10px] font-mono text-zinc-500 ml-1">Analyzing sonic spectrum...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Input Bar -->
+  <div class="p-4 border-t shrink-0"
+    [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/5'">
+    <form (ngSubmit)="send()" class="flex items-center space-x-3">
+      <input type="text"
+        [(ngModel)]="inputPrompt"
+        name="promptInput"
+        [disabled]="sending"
+        placeholder="Ask Audix: 'Recommend songs based on my taste', 'Give me late-night indie rock'..."
+        class="flex-1 px-4 py-3 rounded-2xl text-xs font-semibold border outline-none transition-all duration-200"
+        [ngClass]="activeTheme === 'light' 
+          ? 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-indigo-500' 
+          : 'bg-white/5 border-white/10 text-white placeholder-zinc-500 focus:border-violet-500'">
+
+      <button type="submit" [disabled]="sending || !inputPrompt.trim()"
+        class="px-5 py-3 rounded-2xl text-xs font-bold transition-all active:scale-95 disabled:opacity-40 cursor-pointer shadow-lg flex items-center space-x-1.5 shrink-0"
+        [ngClass]="getThemeBgClass()">
+        <span>Ask</span>
+        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </button>
+    </form>
+  </div>
+
+</div>

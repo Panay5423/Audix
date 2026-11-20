@@ -1,67 +1,51 @@
-import jwt from "jsonwebtoken";
-import { credentials } from "../../config/spotifyScopes.js";
+import { getSpotifyCredentials } from "../../config/spotifyScopes.js";
+
+const SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token";
+const SPOTIFY_BASE_API = "https://api.spotify.com/v1";
 
 const exchangeCodeForTokens = async (code) => {
+    const clientId = process.env.SPOTIFY_CLIENT_ID || process.env.Client_ID;
+    const redirectUrl = process.env.SPOTIFY_REDIRECT_URI || process.env.redirect_url || "http://localhost:5000/api/auth/spotify/callback";
+    const credentials = getSpotifyCredentials();
 
-    const authorization_code = code;
-    const get_token_URl = process.env.get_token_URl
-    const Client_ID = process.env.Client_ID;
-    const redirect_url = process.env.redirect_url;
-
-
-    const payload = {
-        method: 'POST',
+    const response = await fetch(SPOTIFY_TOKEN_URL, {
+        method: "POST",
         headers: {
             "Authorization": `Basic ${credentials}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
+            "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-            client_id: Client_ID,
-            grant_type: 'authorization_code',
-            code: authorization_code,
-            redirect_uri: redirect_url,
-
+            client_id: clientId,
+            grant_type: "authorization_code",
+            code: code,
+            redirect_uri: redirectUrl,
         }),
-    }
-
-
-    const response = await fetch(get_token_URl, payload);
+    });
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(
-            data.error_description || data.error || "Token exchange failed"
-        );
+        throw new Error(data.error_description || data.error || "Token exchange failed");
     }
 
     return data;
+};
 
-}
-
-const Getuser = async (access_token) => {
-    const spotify_base_api = process.env.spotify_base_api;
-    const get_user_url = `${spotify_base_api}/me`;
-
-    const response = await fetch(get_user_url, {
+const Getuser = async (accessToken) => {
+    const response = await fetch(`${SPOTIFY_BASE_API}/me`, {
         method: "GET",
         headers: {
-            Authorization: `Bearer ${access_token}`,
+            Authorization: `Bearer ${accessToken}`,
         },
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(
-            data.error?.message || `Spotify profile request failed: ${response.status}`
-        );
+        throw new Error(data.error?.message || `Spotify profile request failed: ${response.status}`);
     }
 
     return data;
 };
 
-
 export { exchangeCodeForTokens, Getuser };
-
-

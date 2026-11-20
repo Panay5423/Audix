@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { SideBarComponent } from '../../shard/components/side-bar/side-bar.component';
 import { TopBarComponent } from '../../shard/components/top-bar/top-bar.component';
+import { MusicPlayerComponent } from '../../shard/components/music-player/music-player.component';
 import { ThemeService } from '../../cors/services/theme.service';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, SideBarComponent, TopBarComponent],
+  imports: [CommonModule, RouterOutlet, SideBarComponent, TopBarComponent, MusicPlayerComponent],
   templateUrl: './home-layout.component.html',
   styleUrl: './home-layout.component.css'
 })

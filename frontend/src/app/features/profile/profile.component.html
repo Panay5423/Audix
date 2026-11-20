@@ -1,0 +1,112 @@
+<div class="space-y-8 animate-[fadeIn_0.3s_ease-out]">
+  <!-- Profile Dossier Header -->
+  <div class="rounded-3xl p-8 border shadow-2xl transition-all duration-300 relative overflow-hidden flex flex-col sm:flex-row items-center sm:items-end gap-6"
+    [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e0e12] border-white/10'">
+    
+    <div class="relative shrink-0">
+      <img [src]="getAvatar()" alt="User Profile Image"
+        class="h-28 w-28 sm:h-36 sm:w-36 rounded-full object-cover border-4 shadow-2xl"
+        [ngClass]="activeTheme === 'spotify' ? 'border-emerald-500/50' : (activeTheme === 'light' ? 'border-indigo-500/50' : 'border-violet-500/50')">
+      <span class="absolute bottom-1 right-1 h-5 w-5 rounded-full bg-emerald-500 border-2 border-black"></span>
+    </div>
+
+    <div class="space-y-2 text-center sm:text-left flex-1">
+      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest font-bold border"
+        [ngClass]="activeTheme === 'spotify' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-violet-500/10 text-violet-400 border-violet-500/20'">
+        <span>Spotify Identity Verified</span>
+      </div>
+
+      <h2 class="text-3xl sm:text-4xl font-black tracking-tight" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+        {{ userProfile?.displayName || 'Spotify Listener' }}
+      </h2>
+
+      <p class="text-xs font-mono text-zinc-400">
+        {{ userProfile?.email || 'Spotify Account' }} • Territory: {{ userProfile?.country || 'Global' }} • Tier: {{ userProfile?.product || 'Free' | uppercase }}
+      </p>
+
+      <p class="text-xs text-zinc-500 font-mono">
+        Audix Member since {{ (userProfile?.createdAt | date:'mediumDate') || '2026' }}
+      </p>
+    </div>
+
+    <div *ngIf="userProfile?.external_urls?.spotify" class="shrink-0">
+      <a [href]="userProfile?.external_urls?.spotify" target="_blank" rel="noopener noreferrer"
+        class="px-5 py-2.5 rounded-2xl text-xs font-bold border transition-all active:scale-95 shadow flex items-center space-x-2 cursor-pointer"
+        [ngClass]="activeTheme === 'light' ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300' : 'bg-white/10 hover:bg-white/15 text-white border-white/10'">
+        <span>View on Spotify</span>
+        <svg class="h-3.5 w-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- AI Music Taste Analysis Report -->
+  <div class="rounded-3xl p-8 border shadow-2xl relative overflow-hidden space-y-6"
+    [ngClass]="activeTheme === 'light' ? 'bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200' : 'bg-gradient-to-br from-[#12101f] via-[#0c0c12] to-black border-violet-500/20'">
+    
+    <div class="flex items-center justify-between border-b pb-4" [ngClass]="activeTheme === 'light' ? 'border-indigo-100' : 'border-white/5'">
+      <div class="flex items-center space-x-3">
+        <span class="text-xl">🧬</span>
+        <div>
+          <h3 class="text-xs font-mono uppercase font-bold tracking-widest text-zinc-400">
+            AI-Powered Sonic Personality Report
+          </h3>
+          <h4 class="text-xl sm:text-2xl font-black mt-0.5" [ngClass]="getThemeTextClass()">
+            {{ tasteAnalysis?.archetype || 'The Atmospheric Sonic Explorer' }}
+          </h4>
+        </div>
+      </div>
+      <button (click)="loadTasteAnalysis()" [disabled]="loadingTaste" title="Regenerate taste analysis"
+        class="text-xs font-mono text-zinc-400 hover:text-white border border-white/10 px-3 py-1.5 rounded-xl cursor-pointer">
+        {{ loadingTaste ? 'Analyzing...' : '↻ Recalculate' }}
+      </button>
+    </div>
+
+    <!-- Summary Text -->
+    <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed font-medium">
+      {{ tasteAnalysis?.summary || 'Synthesizing your listening history, tempo preferences, acoustic variety, and underground exploration habits...' }}
+    </p>
+
+    <!-- Dominant Moods & Aesthetic -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+      <div class="p-4 rounded-2xl border" [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-white/[0.02] border-white/5'">
+        <span class="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-bold block mb-2">Dominant Sonic Moods</span>
+        <div class="flex flex-wrap gap-2">
+          <span *ngFor="let mood of tasteAnalysis?.dominantMoods"
+            class="px-3 py-1 rounded-full text-xs font-semibold border border-white/10 bg-white/5 text-zinc-200">
+            {{ mood }}
+          </span>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-2xl border" [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-white/[0.02] border-white/5'">
+        <span class="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-bold block mb-1">Recommended Sonic Horizon</span>
+        <p class="text-xs font-bold text-emerald-400 mt-1">
+          {{ tasteAnalysis?.recommendedExploration || 'Neo-Psychedelic Dream Pop' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Favorite Artists Showcase -->
+  <div *ngIf="tasteAnalysis?.favoriteArtists && tasteAnalysis!.favoriteArtists.length > 0" class="space-y-4">
+    <h3 class="text-sm font-bold font-mono uppercase tracking-wider" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+      Top Influential Artists
+    </h3>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+      <div *ngFor="let artist of tasteAnalysis?.favoriteArtists"
+        [routerLink]="['/artist', artist.id]"
+        class="rounded-2xl p-3 border text-center transition-all duration-200 hover:-translate-y-1 cursor-pointer group"
+        [ngClass]="activeTheme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0e0e11] border-white/5 hover:border-violet-500/30'">
+        <div class="h-16 w-16 rounded-full overflow-hidden mx-auto mb-2 border shadow">
+          <img *ngIf="artist.image" [src]="artist.image" class="h-full w-full object-cover">
+          <div *ngIf="!artist.image" class="h-full w-full flex items-center justify-center bg-zinc-800 text-sm">👤</div>
+        </div>
+        <h4 class="text-xs font-bold truncate" [ngClass]="activeTheme === 'light' ? 'text-slate-900' : 'text-white'">
+          {{ artist.name }}
+        </h4>
+      </div>
+    </div>
+  </div>
+</div>

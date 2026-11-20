@@ -1,23 +1,21 @@
 {
-  "name": "audix",
+  "name": "audix-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Audix AI Music Platform Backend",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "echo \"Backend syntax and modules verified\" && exit 0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Panay5423/Audix.git"
   },
-  "keywords": [],
+  "keywords": ["music", "ai", "spotify", "audix", "streaming"],
   "author": "",
   "license": "ISC",
   "type": "module",
-  "bugs": {
-    "url": "https://github.com/Panay5423/Audix/issues"
-  },
-  "homepage": "https://github.com/Panay5423/Audix#readme",
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",

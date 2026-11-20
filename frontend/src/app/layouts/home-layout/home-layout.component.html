@@ -1,0 +1,19 @@
+<div class="h-screen w-screen flex overflow-hidden font-sans"
+  [ngClass]="activeTheme === 'light' ? 'bg-slate-100 text-slate-800' : 'bg-[#060608] text-zinc-100'">
+  <!-- Sidebar Navigation -->
+  <app-side-bar class="shrink-0 h-full"></app-side-bar>
+
+  <!-- Main View Container -->
+  <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+    <!-- Top Navigation Bar -->
+    <app-top-bar class="shrink-0"></app-top-bar>
+
+    <!-- Scrollable Router Page Content (padding bottom for bottom player) -->
+    <main class="flex-1 overflow-y-auto px-4 sm:px-8 py-6 pb-28 scrollbar-thin">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <!-- Persistent Global Music Player -->
+  <app-music-player></app-music-player>
+</div>
