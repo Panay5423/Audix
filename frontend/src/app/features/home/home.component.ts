@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../cors/services/auth.service';
 import { AudixScrollIntroComponent } from './audix-scroll-intro/audix-scroll-intro.component';
 
@@ -44,7 +44,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(
     private authservice: AuthService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) { }
   // Navigation active tab
   activeSection = 'hero';
@@ -128,9 +129,29 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   Spotify_auth_URl: string = "";
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      if (params['error']) {
-        this.errorMessage = decodeURIComponent(params['error']);
+    this.route.queryParamMap.subscribe(params => {
+      if (params.get('error')) {
+        this.errorMessage = decodeURIComponent(params.get('error')!);
+      }
+
+      // If token is directly in query params, save and go to dashboard
+      const token = params.get('token');
+      if (token) {
+        this.authservice.setToken(token);
+        this.router.navigate(['/dashboard'], { replaceUrl: true });
+        return;
+      }
+
+      // If redirected from authGuard with redirect URL containing token
+      const redirect = params.get('redirect');
+      if (redirect && redirect.includes('token=')) {
+        const decoded = decodeURIComponent(redirect);
+        const match = decoded.match(/token=([^&]+)/);
+        if (match && match[1]) {
+          this.authservice.setToken(match[1]);
+          this.router.navigate(['/dashboard'], { replaceUrl: true });
+          return;
+        }
       }
     });
 
